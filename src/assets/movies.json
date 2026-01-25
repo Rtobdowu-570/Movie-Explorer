@@ -1,0 +1,109 @@
+{
+  "movie": [
+    {
+      "trending": [
+        {
+          "id": 101,
+          "title": "Interstellar",
+          "year": "2014",
+          "genre": "Sci-Fi",
+          "quality": "4K",
+          "description": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
+        },
+        {
+          "id": 102,
+          "title": "Inception",
+          "year": "2010",
+          "genre": "Action",
+          "quality": "HD",
+          "description": "A thief who steals corporate secrets through the use of dream-sharing technology.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg"
+        },
+        {
+          "id": 103,
+          "title": "Jujustu Kaisen: The Rising",
+          "year": "2020",
+          "genre": "Anime",
+          "quality": "HD",
+          "description": "Yuji Itadori is a boy with tremendous physical strength, though he lives a completely ordinary high school life. One day, to save a classmate who has been attacked by curses, he eats the finger of Ryomen Sukuna, taking the curse into his own soul.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/fHpKWq9ayzSk8nSwqRuaAUemRKh.jpg"
+        },
+        {
+          "id": 104,
+          "title": "Avengers: Age of Ultron",
+          "year": "2015",
+          "genre": "Action",
+          "quality": "UHD",
+          "description": "When Tony Stark tries to jumpstart a dormant peacekeeping program, things go awry and Earth’s Mightiest Heroes are put to the ultimate test as the fate of the planet hangs in the balance.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/4ssDuvEDkSArWEdyBl2X5EHvYKU.jpg"
+        },
+        {
+          "id": 105,
+          "title": "Guardians of the Galaxy",
+          "year": "2014",
+          "genre": "Adventure",
+          "quality": "2K",
+          "description": "Light years from Earth, 26 years after being abducted, Peter Quill finds himself the prime target of a manhunt after discovering an orb wanted by Ronan the Accuser.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/r7vmZjiyZw9rpJMQJdXpjgiCOk9.jpg"
+        },
+        {
+          "id": 106,
+          "title": "The Rip",
+          "year": "2020",
+          "genre": "Anime",
+          "quality": "HD",
+          "description": "Trust frays when a team of Miami cops discovers millions in cash inside a run-down stash house, calling everyone — and everything — into question.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/p4bW2sJKAwcHuLpfoZK7Zo63osA.jpg"
+        }
+      ],
+      "latestReleases": [
+        {
+          "id": 201,
+          "title": "The Big Fake ",
+          "year": "2026",
+          "genre": "Action",
+          "quality": "1080p HD",
+          "description": "Toni Chichiarelli arrives in Rome with the dream of becoming a painter, but his talent leads him elsewhere — from art galleries to state secrets. Between art, crime, and power, his signature ends up everywhere — even in the history of Italy.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/qNEL6chkH2s6gwvt0Jt9NfiXG8m.jpg"
+        },
+        {
+          "id": 202,
+          "title": "The Night Manager",
+          "year": "2016",
+          "genre": "Sci-Fi",
+          "quality": "4K",
+          "description": "Former British soldier Jonathan Pine navigates the shadowy recesses of Whitehall and Washington where an unholy alliance operates between the intelligence community and the secret arms trade.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/1MccRnw41qQjREuZkovqP2UX1i3.jpg"
+        },
+        {
+          "id": 203,
+          "title": "Frieren: Beyond Journey's End ",
+          "year": "2023",
+          "genre": "Anime",
+          "quality": "4K",
+          "description": "Decades after her party defeated the Demon King, an old friend's funeral launches the elf wizard Frieren on a journey of self-discovery.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/4oIkJpy27JnTcf0pdCsUEtJEoOz.jpg"
+        },
+        {
+          "id": 204,
+          "title": "Wanted ",
+          "year": "2008",
+          "genre": "Sci-Fi",
+          "quality": "Action",
+          "description": "Doormat Wesley Gibson is an office worker whose life is going nowhere. He meets an attractive woman named Fox and discovers that his recently murdered father - whom Wesley never knew - belonged to the Fraternity, a secret society of assassins which takes its orders from Fate itself. ",
+          "poster": "https://www.themoviedb.org/t/p/w1280/cbDMsV4VJAL2xJ2JXdWWjmUXZkT.jpg"
+        },
+        {
+          "id": 205,
+          "title": "Trap House",
+          "year": "2025",
+          "genre": "Crime",
+          "quality": "4K",
+          "description": "An undercover DEA agent and his partner embark on a game of cat and mouse with an audacious, and surprising group of thieves - their own rebellious teenagers, who have begun robbing from a dangerous cartel, using their parents' tactics and top-secret intel to do it.",
+          "poster": "https://www.themoviedb.org/t/p/w1280/6tpAPeuuqbVnYWWPoOLEDLSBU7a.jpg"
+        }
+      ]
+    }
+  ]
+}
