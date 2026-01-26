@@ -1,12 +1,16 @@
 import React from "react";
 import { FaSearch, FaBell } from "react-icons/fa";
+import "../styles/home.css";
+import { Link } from "react-router";
 const Homenav = () => {
   return (
     <>
       <nav className="home-nav">
         <div className="home-left-nav">
           <div className="home-text">
-            <h1>MovieScope</h1>
+            <Link to="/" className="head">
+              <h1>MovieScope</h1>
+            </Link>
           </div>
         </div>
         <div className="home-center-nav">

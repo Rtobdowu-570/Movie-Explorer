@@ -1,9 +1,16 @@
-import React from 'react'
+import React from "react";
+import Homenav from "../components/Homenav";
+import Homevidsection from "../components/Homevidsection";
+import Homefooter from "../components/Homefooter";
 
 const moviepage = () => {
   return (
-    <div>moviepage</div>
-  )
-}
+    <>
+      <Homenav />
+      <Homevidsection />
+      <Homefooter />
+    </>
+  );
+};
 
-export default moviepage
+export default moviepage;

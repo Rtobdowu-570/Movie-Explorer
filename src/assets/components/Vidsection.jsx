@@ -53,7 +53,7 @@ const Vidsection = () => {
           </div>
           <div className="new-release-grid">
             {movies.movie[0].latestReleases.map((movie) => (
-              <div className="new-release-card">
+              <div className="new-release-card" key={movie.id}>
                 <div className="new-release-thumbnail">
                   <img src={movie.poster} alt="" />
                 </div>

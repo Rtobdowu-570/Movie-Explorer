@@ -1,7 +1,7 @@
 import React from "react";
 import image from "../images/image.jpg";
 import { FaStar } from "react-icons/fa";
-import "../styles/main.css";
+import "../styles/home.css";
 
 const Homevidsection = () => {
   return (
@@ -16,10 +16,10 @@ const Homevidsection = () => {
                 <FaStar className="star-icon" /> <span>4.5</span>
               </div>
             </div>
-            <div className="popular-movie-name"></div>
+            <div className="popular-movie-name">Sapa Age </div>
             <div className="popular-movie-less-info">
-              <div className="popular-movie-year"></div>
-              <div className="popular-movie-genre"></div>
+              <div className="popular-movie-year">2024</div>
+              <div className="popular-movie-genre">Action</div>
             </div>
           </div>
         </div>
