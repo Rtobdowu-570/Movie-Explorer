@@ -117,6 +117,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 25px;
+  margin: 2rem 0 3rem 0;
 }
 
 .popular-movie-info {
@@ -184,6 +185,36 @@ body {
   border-radius: 4px;
   color: var(--text-dim);
   border: 1px solid var(--border-color);
+}
+
+.new-movie-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 25px;
+  margin: 2rem 0 3rem 0;
+  overflow-x: auto;
+  padding-bottom: 15px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.new-movie-info {
+  background: transparent;
+  transition: transform 0.3s ease;
+  flex: 0 0 240px;
+}
+
+.new-movie-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.new-movie-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.new-movie-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
 }
 
 .load-more-btn {

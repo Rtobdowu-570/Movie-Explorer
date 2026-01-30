@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useParams } from "react-router";
 import { FaArrowRight, FaPlay } from "react-icons/fa";
 import movies from "../movies.json";
 
