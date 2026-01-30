@@ -1,8 +1,23 @@
 import React from "react";
+import { useState } from "react";
 import { FaSearch, FaBell } from "react-icons/fa";
 import "../styles/home.css";
 import { Link } from "react-router";
+import { useNavigate } from "react-router";
+
 const Homenav = () => {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    if (query.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query)}`);
+    }
+  };
+
   return (
     <>
       <nav className="home-nav">
@@ -16,10 +31,18 @@ const Homenav = () => {
         <div className="home-center-nav">
           <div className="home-search-bar">
             <FaSearch className="search-icon" />
-            <input type="text" placeholder="Search for movies..." />
+            <input
+              type="text"
+              placeholder="Search for movies..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
           </div>
           <div className="search-button">
-            <button className="search-text">Search</button>
+            <button className="search-text" onClick={handleSearch}>
+              Search
+            </button>
           </div>
         </div>
         <div className="home-right-nav">
