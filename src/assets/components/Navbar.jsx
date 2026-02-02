@@ -11,7 +11,7 @@ const Navbar = () => {
           <ul className="right-nav-list">
             <li>
               <Link className="head" to="/">
-                MovieScope
+                MovieHook
               </Link>
             </li>
             <li>

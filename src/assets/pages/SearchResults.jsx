@@ -23,7 +23,6 @@ const SearchResults = () => {
           options,
         );
         const data = await response.json();
-        console.log("API response data.results:", data.results);
         setResults(data.results || []);
       } catch (err) {
         console.error(err);

@@ -24,7 +24,7 @@ const Homenav = () => {
         <div className="home-left-nav">
           <div className="home-text">
             <Link to="/" className="head">
-              <h1>MovieScope</h1>
+              <h1>MovieHook</h1>
             </Link>
           </div>
         </div>

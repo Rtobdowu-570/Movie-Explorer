@@ -1,14 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Navigate } from "react-router";
+import { useNavigate } from "react-router";
 import { FaStar } from "react-icons/fa";
 import "../styles/home.css";
 
 const Homevidsection = () => {
-  const [redirect, Setredirect] = useState(false);
-  if (redirect) {
-    Navigate("/movie");
-  }
+  const navigate = useNavigate();
 
   const [trending, setTrending] = useState([]);
   const [genreList, setGenreList] = useState([]);
@@ -84,7 +81,7 @@ const Homevidsection = () => {
             <div
               className="new-movie-info"
               key={movie.id}
-              onClick={() => Setredirect(true)}
+              onClick={() => navigate(`/movie/${movie.id}`)}
             >
               <div className="popular-movie-thumbnail">
                 <img
@@ -124,7 +121,7 @@ const Homevidsection = () => {
             <div
               className="new-movie-info"
               key={movie.id}
-              onClick={() => Setredirect(true)}
+              onClick={() => navigate(`/movie/${movie.id}`)}
             >
               <div className="popular-movie-thumbnail">
                 <img
@@ -160,7 +157,7 @@ const Homevidsection = () => {
             <div
               className="new-movie-info"
               key={movie.id}
-              onClick={() => Setredirect(true)}
+              onClick={() => navigate(`/movie/${movie.id}`)}
             >
               <div className="popular-movie-thumbnail">
                 <img
@@ -200,7 +197,7 @@ const Homevidsection = () => {
                 <div
                   className="popular-movie-info"
                   key={movie.id}
-                  onClick={() => Setredirect(true)}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
                 >
                   <div className="popular-movie-thumbnail">
                     <img

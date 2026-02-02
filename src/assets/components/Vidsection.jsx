@@ -1,9 +1,52 @@
 import React from "react";
-import { useParams } from "react-router";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
 import { FaArrowRight, FaPlay } from "react-icons/fa";
-import movies from "../movies.json";
+import "../styles/home.css";
 
 const Vidsection = () => {
+  const navigate = useNavigate();
+
+  const [trending, setTrending] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
+
+  useEffect(() => {
+    const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
+    const fetchMovieData = async () => {
+      const options = {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${TMDB_API_KEY}`,
+        },
+      };
+
+      try {
+        const [trendingRes, upcomingRes] = await Promise.all([
+          fetch(
+            "https://api.themoviedb.org/3/trending/all/day?language=en-US",
+            options,
+          ),
+          fetch(
+            "https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1",
+            options,
+          ),
+        ]);
+
+        const trendingData = await trendingRes.json();
+        const upcomingData = await upcomingRes.json();
+
+        setTrending(trendingData.results);
+        setUpcoming(upcomingData.results);
+      } catch (err) {
+        console.error("Failed to fetch upcoming movies:", err);
+      }
+    };
+
+    fetchMovieData();
+  }, []);
+
   return (
     <>
       <div className="movie-section">
@@ -13,12 +56,17 @@ const Vidsection = () => {
           </div>
           <div className="trending-now-container">
             <div className="trending-movie-grid">
-              {movies.movie[0].trending.map((movie) => (
-                <div className="trending-movie-info" key={movie.id}>
+              {trending.map((movie) => (
+                 <div 
+                  className="trending-movie-info" 
+                  key={movie.id}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                  style={{ cursor: "pointer" }}
+                 >
                   <div className="trending-movie-container">
                     <div className="trending-movie-thumbnail">
                       <img
-                        src={movie.poster}
+                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                         alt=""
                         className="trending-movie-img"
                       />
@@ -48,17 +96,36 @@ const Vidsection = () => {
 
         <div className="new-releases">
           <div className="title-text-releases">
-            <h1>New Releases</h1>
+            <h1>Upcoming</h1>
             <span className="view-all">View All</span>
           </div>
-          <div className="new-release-grid">
-            {movies.movie[0].latestReleases.map((movie) => (
-              <div className="new-release-card" key={movie.id}>
+          <div
+            className="new-movie-grid"
+            style={{
+              maxWidth: "1400px",
+              margin: "auto",
+              cursor: "pointer",
+            }}
+          >
+            {upcoming.map((movie) => (
+              <div
+                className="new-movie-info"
+                key={movie.id}
+                onClick={() => navigate(`/movie/${movie.id}`)}
+                style={{
+                  padding: "2px",
+                  cursor: "pointer",
+                  marginRight: "4px",
+                }}
+              >
                 <div className="new-release-thumbnail">
-                  <img src={movie.poster} alt="" />
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    alt=""
+                  />
                 </div>
-                <p className="movie-new-release-name">{movie.name}</p>
-                <p className="movie-new-release-year">{movie.year}</p>
+                <p className="movie-new-release-name">{movie.title}</p>
+                <p className="movie-new-release-year">{movie.release_date}</p>
               </div>
             ))}
           </div>
