@@ -446,3 +446,148 @@ img {
     width: 100%;
   }
 }
+
+/* Tablet Responsiveness */
+@media (max-width: 900px) {
+  .movie-heading h1 {
+    font-size: 3rem;
+  }
+  
+  .header-background {
+    height: 75vh;
+  }
+  
+  .movie-info {
+      max-width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-nav {
+      padding: 15px 3%;
+  }
+
+  .header-background {
+    height: 70vh;
+    background-position: top center;
+  }
+  
+  .movie-info {
+    padding-left: 5%;
+    padding-right: 5%;
+    width: 100%;
+    /* Gradient adjustment for better text visibility on smaller screens */
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.95) 10%,
+      rgba(0, 0, 0, 0.5) 60%,
+      transparent 100%
+    );
+    justify-content: flex-end;
+    padding-bottom: 60px;
+  }
+  
+  .movie-heading h1 {
+    font-size: 2.5rem;
+    margin-top: 0;
+  }
+  
+  .movie-description {
+    font-size: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .trending-movie-info {
+    width: 200px; /* Smaller cards */
+  }
+  
+  /* If new-release-grid is used here */
+  .new-release-grid {
+      grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .category-grid {
+      grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .main-nav {
+      flex-direction: column;
+      gap: 15px;
+      position: relative; /* Static position on mobile to avoid covering content */
+      background: #05070a; /* Solid background */
+      padding: 15px;
+  }
+  
+  .left-nav-list, .right-nav-list {
+      gap: 15px;
+      font-size: 0.9rem;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+  }
+  
+  .head {
+      font-size: 1.8rem;
+  }
+
+  .header-background {
+      height: 60vh;
+      /* Since nav is relative now, we might want to adjust background attachment or position */
+  }
+
+   /* Adjust movie info since nav is now taking space above it */
+  .movie-info {
+     height: 100%;
+     padding-top: 20px;
+  }
+
+  .movie-heading h1 {
+      font-size: 2rem;
+      line-height: 1.2;
+  }
+
+  .movie-production {
+      font-size: 0.8rem;
+      flex-wrap: wrap;
+  }
+
+  .movie-actions {
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+  }
+  
+  .play-btn, .more-info {
+      width: 100%;
+      justify-content: center;
+      padding: 12px 0;
+  }
+  
+  .new-release-grid {
+      grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .category-grid {
+      grid-template-columns: 1fr; 
+  }
+  
+  .category-name {
+      height: 140px;
+  }
+  
+  .title-text h1 {
+      font-size: 1.2rem;
+  }
+  
+  .trending-movie-info {
+      width: 160px;
+  }
+}

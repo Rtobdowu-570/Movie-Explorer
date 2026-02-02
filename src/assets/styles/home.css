@@ -276,7 +276,82 @@ body {
   margin-top: 50px;
 }
 
-.footer-text {
-  color: var(--text-dim);
-  font-size: 0.9rem;
+@media (max-width: 900px) {
+  .home-center-nav {
+    flex: 0 1 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-nav {
+      flex-wrap: wrap;
+      padding: 15px 4%;
+      gap: 15px;
+  }
+  
+  .home-left-nav {
+      order: 1;
+  }
+  
+  .home-right-nav {
+      order: 2;
+  }
+
+  .home-center-nav {
+      order: 3;
+      flex: 0 0 100%;
+      margin: 0;
+  }
+  
+  .popular-movie-grid {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+  }
+  
+  .main-text {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .popular-movie-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+  }
+  
+  .popular-movie-thumbnail {
+      border-radius: 8px;
+  }
+  
+  .movie-rating {
+      font-size: 0.7rem;
+      padding: 2px 5px;
+  }
+  
+  .popular-movie-name {
+      font-size: 0.9rem;
+  }
+  
+  .movie-card img {
+      height: 200px;
+  }
+  
+  .search-text {
+      display: none; /* Hide 'Search' button text or button entirely if input has icon */
+  }
+  
+  /* Make input take full width since button is hidden */
+  .home-search-bar {
+      width: 100%;
+      border-radius: 8px; /* Round corners since button is gone */
+  }
+  
+  .search-button {
+      display: none;
+  }
+  
+  .home-left-nav h1 {
+      font-size: 1.2rem;
+  }
 }
