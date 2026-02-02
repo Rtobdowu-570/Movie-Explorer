@@ -253,13 +253,14 @@ img {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 9 / 12;
 }
 
 .trending-movie-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top;
 }
 
 .trending-movie-text {
