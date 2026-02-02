@@ -9,8 +9,6 @@ const Homenav = () => {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
-  const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-
   const handleSearch = (e) => {
     if (e) e.preventDefault();
     if (query.trim()) {

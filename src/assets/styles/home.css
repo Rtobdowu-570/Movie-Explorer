@@ -10,6 +10,10 @@
 .head {
   text-decoration: none;
   color: var(--text-main);
+} 
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {

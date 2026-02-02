@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import "../styles/home.css";
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const [results, setResults] = useState([]);
   const movieQuery = searchParams.get("q");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -38,7 +40,7 @@ const SearchResults = () => {
       <h2 style={{ margin: "20px" }}>Results for: {movieQuery}</h2>
       <div className="popular-movie-grid">
         {results.map((movie) => (
-          <div className="popular-movie-info" key={movie.id}>
+          <div className="popular-movie-info" key={movie.id} onClick={() => navigate(`/movie/${movie.id}`)} style={{ cursor: "pointer" }}>
             <div className="popular-movie-thumbnail">
               <img
                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}

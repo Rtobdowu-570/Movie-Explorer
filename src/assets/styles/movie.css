@@ -1,12 +1,11 @@
-/* --- THEME & VARIABLES --- */
 :root {
-  --bg-main: #02040a; /* Very dark background */
-  --bg-card: #0b1016; /* Slightly lighter for cards equivalent to image */
+  --bg-main: #02040a; 
+  --bg-card: #0b1016; 
   --text-primary: #ffffff;
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
-  --accent-blue: #01b4e4; /* TMDB-like blue */
-  --accent-green: #21d07a; /* Score green */
+  --accent-blue: #01b4e4; 
+  --accent-green: #21d07a; 
   --border-color: #1f2937;
   --radius-xl: 16px;
   --radius-lg: 12px;
@@ -16,6 +15,10 @@
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -103,11 +106,9 @@ body {
   border: 2px solid rgba(255,255,255,0.2);
 }
 
-/* --- HERO SECTION --- */
 .hero-wrapper {
   position: relative;
   width: 100%;
-  /* Using a fixed height or min-height to accommodate content */
   min-height: 550px;
   display: flex;
   align-items: center;
@@ -218,7 +219,7 @@ body {
   background: #081c22;
   border-radius: 50%;
   font-weight: 700;
-  border: 3px solid #21d07a; /* Simplified progress representation */
+  border: 3px solid #21d07a; 
 }
 
 .score-text {
@@ -307,7 +308,6 @@ body {
   opacity: 0.8;
 }
 
-/* --- MAIN CONTENT & SIDEBAR --- */
 .content-wrapper {
   max-width: 1300px;
   margin: 0 auto;
@@ -328,7 +328,6 @@ body {
   justify-content: space-between;
 }
 
-/* Cast Section */
 .cast-scroller {
   display: flex;
   gap: 16px;
@@ -336,7 +335,6 @@ body {
   padding-bottom: 16px;
   margin-bottom: 30px;
   
-  /* Hide scrollbar for clean look but allow functionality */
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
 }
@@ -352,7 +350,7 @@ body {
 
 .video-card {
   flex-shrink: 0;
-  width: 400px; /* Reduced width */
+  width: 400px; 
   position: relative;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -404,7 +402,7 @@ body {
 .cast-card {
   flex-shrink: 0;
   width: 140px;
-  background: #11141c; /* Slightly muted card bg */
+  background: #11141c; 
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.05);
@@ -434,7 +432,6 @@ body {
   margin-top: 2px;
 }
 
-/* Social & Media Placeholders */
 .social-section, .media-section {
   margin-top: 20px;
   padding-top: 20px;
@@ -535,7 +532,6 @@ body {
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* Footer */
 .footer {
   margin-top: auto;
   padding: 40px;

@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { FaArrowRight, FaPlay } from "react-icons/fa";
 import "../styles/home.css";
 
@@ -97,7 +97,7 @@ const Vidsection = () => {
         <div className="new-releases">
           <div className="title-text-releases">
             <h1>Upcoming</h1>
-            <span className="view-all">View All</span>
+            <span className="view-all" onClick={() => navigate("/movie/#upcoming")}>View All</span>
           </div>
           <div
             className="new-movie-grid"
@@ -107,7 +107,7 @@ const Vidsection = () => {
               cursor: "pointer",
             }}
           >
-            {upcoming.map((movie) => (
+            {upcoming.slice(0, 9).map((movie) => (
               <div
                 className="new-movie-info"
                 key={movie.id}

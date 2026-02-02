@@ -12,6 +12,7 @@ const Homevidsection = () => {
   const [tv, setTv] = useState([]);
   const [popular, setPopular] = useState([]);
   const [movie, setMovie] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
   const [showDisplay, setShowDisplay] = useState(false);
 
   const handleClick = () => {
@@ -31,7 +32,7 @@ const Homevidsection = () => {
       };
 
       try {
-        const [tvRes, popularRes, trendingRes, genresRes, movieRes] =
+        const [tvRes, popularRes, trendingRes, genresRes, movieRes, upcomingRes] =
           await Promise.all([
             fetch(
               "https://api.themoviedb.org/3/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc",
@@ -51,6 +52,10 @@ const Homevidsection = () => {
               "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc",
               options,
             ),
+            fetch(
+            "https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1",
+            options,
+          ),
           ]);
 
         const tvData = await tvRes.json();
@@ -58,12 +63,14 @@ const Homevidsection = () => {
         const trendingData = await trendingRes.json();
         const genresData = await genresRes.json();
         const movieData = await movieRes.json();
+        const upcomingData = await upcomingRes.json();
 
         setTv(tvData.results);
         setPopular(popularData.results);
         setTrending(trendingData.results);
         setGenreList(genresData.genres);
         setMovie(movieData.results);
+        setUpcoming(upcomingData.results);
       } catch (err) {
         console.error("Failed to fetch movie info:", err);
       }
@@ -150,6 +157,43 @@ const Homevidsection = () => {
             </div>
           ))}
         </div>
+
+        <div className="main-text" id="upcoming">Upcoming Movies</div>
+        <div className="new-movie-grid">
+          {upcoming.map((movie) => (
+            <div
+              className="new-movie-info"
+              key={movie.id}
+              onClick={() => navigate(`/movie/${movie.id}`)}
+            >
+              <div className="popular-movie-thumbnail">
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  alt={movie.name}
+                />
+                <div className="movie-rating">
+                  <FaStar className="star-icon" />{" "}
+                  <span>{movie.vote_average.toFixed(1)}</span>
+                </div>
+              </div>
+              <div className="popular-movie-name">{movie.name}</div>
+              <div className="popular-movie-less-info">
+                <div className="popular-movie-year">{movie.first_air_date}</div>
+                <div className="popular-movie-genre">
+                  {genreList
+                    .filter((genre) => movie.genre_ids.includes(genre.id))
+                    .slice(0, 1)
+                    .map(
+                      (genre) =>
+                        genre.name[0].toUpperCase() + genre.name.slice(1),
+                    )
+                    .join(", ")}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
 
         <div className="main-text">TV Shows</div>
         <div className="new-movie-grid">
