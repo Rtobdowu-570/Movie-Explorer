@@ -12,7 +12,7 @@ const Hero = ({ movie }) => {
         <div className="movie-heading"><h1>{movie.title}</h1></div>
         <div className="movie-production">
             <div className="movie-released-year"> {movie.release_date} </div> <span className="separator"></span>
-            <div className="movie-category">{movie.genre_ids ? movie.genre_ids.join(', ') : ''}</div><span className="separator"></span>
+            <div className="movie-category">{movie.vote_average}</div><span className="separator"></span>
             <div className="movie-quality"> 1080p HD</div>
         </div>
         <div className="movie-description">
