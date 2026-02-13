@@ -99,24 +99,12 @@ const Vidsection = () => {
             <h1>Upcoming</h1>
             <span className="view-all" onClick={() => navigate("/movie/#upcoming")}>View All</span>
           </div>
-          <div
-            className="new-movie-grid"
-            style={{
-              maxWidth: "1400px",
-              margin: "auto",
-              cursor: "pointer",
-            }}
-          >
+          <div className="new-movie-grid">
             {upcoming.slice(0, 9).map((movie) => (
               <div
                 className="new-movie-info"
                 key={movie.id}
                 onClick={() => navigate(`/movie/${movie.id}`)}
-                style={{
-                  padding: "2px",
-                  cursor: "pointer",
-                  marginRight: "4px",
-                }}
               >
                 <div className="new-release-thumbnail">
                   <img

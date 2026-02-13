@@ -1,10 +1,61 @@
 :root {
+  /* Colors */
   --bg-dark: #0a0c10;
   --bg-card: #161b22;
   --accent-blue: #3b82f6;
   --text-main: #ffffff;
   --text-dim: #8b949e;
   --border-color: #30363d;
+  
+  /* Breakpoints */
+  --breakpoint-mobile: 480px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 769px;
+  
+  /* Spacing - Mobile */
+  --spacing-mobile-padding: 4%;
+  --spacing-mobile-gap-small: 10px;
+  --spacing-mobile-gap-medium: 15px;
+  --spacing-mobile-gap-large: 20px;
+  --spacing-mobile-section-margin: 20px;
+  
+  /* Spacing - Tablet */
+  --spacing-tablet-padding: 4%;
+  --spacing-tablet-gap-small: 15px;
+  --spacing-tablet-gap-medium: 20px;
+  --spacing-tablet-gap-large: 25px;
+  --spacing-tablet-section-margin: 25px;
+  
+  /* Spacing - Desktop */
+  --spacing-desktop-padding: 4%;
+  --spacing-desktop-gap-small: 20px;
+  --spacing-desktop-gap-medium: 25px;
+  --spacing-desktop-gap-large: 30px;
+  --spacing-desktop-section-margin: 30px;
+  
+  /* Touch Targets */
+  --touch-target-min: 44px;
+  --touch-target-spacing: 8px;
+  --icon-size-mobile: 20px;
+  --icon-size-desktop: 24px;
+  
+  /* Typography - Mobile */
+  --font-h1-mobile: 2rem;
+  --font-h2-mobile: 1.5rem;
+  --font-body-mobile: 14px;
+  --font-small-mobile: 12px;
+  
+  /* Typography - Tablet */
+  --font-h1-tablet: 3rem;
+  --font-h2-tablet: 1.8rem;
+  --font-body-tablet: 15px;
+  --font-small-tablet: 13px;
+  
+  /* Typography - Desktop */
+  --font-h1-desktop: 3.6rem;
+  --font-h2-desktop: 2rem;
+  --font-body-desktop: 15px;
+  --font-small-desktop: 14px;
 }
 
 .head {
@@ -24,6 +75,34 @@ body {
     "Inter",
     -apple-system,
     sans-serif;
+  overflow-x: hidden;
+}
+
+/* Base responsive utilities */
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+a,
+input[type="button"],
+input[type="submit"] {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+}
+
+@media (max-width: 480px) {
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  .interactive {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
 }
 
 .home-nav {
@@ -36,6 +115,30 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.hamburger-menu {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.hamburger-menu:hover {
+  color: var(--accent-blue);
+}
+
+.hamburger-menu:focus {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
 .home-text h1 {
@@ -60,6 +163,13 @@ body {
   border-radius: 8px;
   padding: 8px 15px;
   width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-search-bar:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  outline: none;
 }
 
 .search-icon {
@@ -75,6 +185,10 @@ body {
   outline: none;
 }
 
+.home-search-bar input:focus {
+  outline: none;
+}
+
 .search-text {
   background-color: var(--accent-blue);
   color: white;
@@ -83,6 +197,17 @@ body {
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-text:hover {
+  background-color: #2563eb;
+}
+
+.search-text:focus {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }
 
 .home-right-nav {
@@ -107,6 +232,19 @@ body {
 
 .main-section {
   padding: 40px 4%;
+}
+
+.search-page {
+  padding: 20px 4%;
+  min-height: 100vh;
+}
+
+.search-page h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  padding-left: 10px;
+  border-left: 4px solid var(--accent-blue);
 }
 
 .main-text {
@@ -192,34 +330,19 @@ body {
 }
 
 .new-movie-grid {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 25px;
   margin: 2rem 0 3rem 0;
-  overflow-x: auto;
-  padding-bottom: 15px;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  padding: 0 4%;
 }
 
 .new-movie-info {
   background: transparent;
   transition: transform 0.3s ease;
-  flex: 0 0 240px;
+  cursor: pointer;
 }
 
-.new-movie-grid::-webkit-scrollbar {
-  height: 8px;
-}
-
-.new-movie-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.new-movie-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
 
 .movie-card {
   background: #1a1a1a;
@@ -227,6 +350,7 @@ body {
   overflow: hidden;
   transition: transform 0.3s ease;
   cursor: pointer;
+  aspect-ratio: 2/3;
 }
 
 .movie-card:hover {
@@ -235,7 +359,7 @@ body {
 
 .movie-card img {
   width: 100%;
-  height: 270px;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -276,6 +400,38 @@ body {
   margin-top: 50px;
 }
 
+/* Mobile footer - left alignment */
+@media (max-width: 480px) {
+  .footer-section {
+    text-align: left;
+  }
+}
+
+/* Desktop navigation - ensure proper layout above 768px */
+@media (min-width: 769px) {
+  .home-nav {
+    flex-wrap: nowrap;
+    gap: 20px;
+  }
+  
+  .hamburger-menu {
+    display: none;
+  }
+  
+  .home-left-nav {
+    flex: 0 0 auto;
+  }
+  
+  .home-center-nav {
+    flex: 1 1 auto;
+    max-width: 600px;
+  }
+  
+  .home-right-nav {
+    flex: 0 0 auto;
+  }
+}
+
 @media (max-width: 900px) {
   .home-center-nav {
     flex: 0 1 400px;
@@ -285,22 +441,36 @@ body {
 @media (max-width: 768px) {
   .home-nav {
       flex-wrap: wrap;
-      padding: 15px 4%;
-      gap: 15px;
+      padding: 15px var(--spacing-tablet-padding);
+      gap: var(--spacing-tablet-gap-medium);
+      row-gap: 12px;
   }
   
   .home-left-nav {
       order: 1;
+      flex: 0 1 auto;
   }
   
   .home-right-nav {
       order: 2;
+      flex: 0 1 auto;
+      gap: 15px;
   }
 
   .home-center-nav {
       order: 3;
       flex: 0 0 100%;
       margin: 0;
+      gap: 10px;
+  }
+  
+  .home-search-bar {
+      flex: 1;
+      min-width: 0;
+  }
+  
+  .search-button {
+      flex-shrink: 0;
   }
   
   .popular-movie-grid {
@@ -308,14 +478,104 @@ body {
       gap: 15px;
   }
   
+  .new-movie-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+  }
+  
   .main-text {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+  }
+  
+  .search-page {
+      padding: 15px var(--spacing-tablet-padding);
+  }
+  
+  .search-page h2 {
       font-size: 1.4rem;
       margin-bottom: 20px;
   }
 }
 
 @media (max-width: 480px) {
+  .hamburger-menu {
+    display: flex;
+    order: 2;
+  }
+  
+  .home-left-nav {
+    order: 1;
+  }
+  
+  .home-right-nav {
+    order: 3;
+  }
+  
+  .home-center-nav {
+    order: 4;
+  }
+  
+  .nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
+  
+  .nav-links-mobile {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 4%;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+    min-height: var(--touch-target-min);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  .mobile-nav-link:last-child {
+    border-bottom: none;
+  }
+  
+  .mobile-nav-link:hover,
+  .mobile-nav-link:focus {
+    background-color: var(--bg-card);
+    color: var(--accent-blue);
+    outline: none;
+  }
+  
+  .mobile-nav-link:focus {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: -2px;
+  }
+  
   .popular-movie-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+  }
+  
+  .new-movie-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
   }
@@ -333,8 +593,15 @@ body {
       font-size: 0.9rem;
   }
   
-  .movie-card img {
-      height: 200px;
+  .search-page {
+      padding: 15px var(--spacing-mobile-padding);
+  }
+  
+  .search-page h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      margin-left: 0;
+      margin-right: 0;
   }
   
   .search-text {

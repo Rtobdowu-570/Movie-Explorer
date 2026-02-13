@@ -1,0 +1,323 @@
+# Implementation Plan: Responsive Alignment Fix
+
+## Overview
+
+This implementation plan breaks down the responsive alignment fixes into incremental steps, starting with foundational CSS improvements, then addressing each component systematically. The approach ensures that each step builds on previous work and can be validated independently.
+
+## Tasks
+
+- [x] 1. Set up responsive foundation and CSS variables
+  - Create or update CSS custom properties for breakpoints, spacing, and touch targets
+  - Add viewport meta tag if missing
+  - Establish base responsive utilities
+  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+
+- [ ] 2. Fix navigation responsive behavior (Homenav component)
+  - [x] 2.1 Implement hamburger menu for mobile viewport
+    - Add hamburger menu icon component
+    - Add state management for menu open/close
+    - Style hamburger icon with 44x44px touch target
+    - _Requirements: 1.1, 1.6_
+  
+  - [x] 2.2 Implement mobile navigation layout
+    - Create vertical navigation menu that appears when hamburger is clicked
+    - Ensure no overlap with other elements
+    - Add proper z-index and positioning
+    - _Requirements: 1.2_
+  
+  - [x] 2.3 Fix tablet navigation layout
+    - Adjust flex-wrap and spacing for tablet viewport
+    - Ensure search bar wraps to new row
+    - Verify no horizontal overflow
+    - _Requirements: 1.3_
+  
+  - [x] 2.4 Fix desktop navigation layout
+    - Ensure horizontal layout with consistent spacing
+    - Verify all elements visible and properly aligned
+    - _Requirements: 1.4_
+  
+  - [x] 2.5 Fix search bar responsive behavior
+    - Hide search button on mobile, keep search icon
+    - Ensure search bar takes full width on mobile
+    - Prevent overlap with navigation elements
+    - _Requirements: 1.5, 4.1, 4.5_
+  
+  - [ ]* 2.6 Write property test for touch target sizes
+    - **Property 1: Touch Target Minimum Size**
+    - **Validates: Requirements 1.6, 5.4, 8.1, 8.2, 8.3, 8.5**
+  
+  - [ ]* 2.7 Write unit tests for navigation layouts
+    - Test hamburger menu visibility at mobile breakpoint
+    - Test navigation layout at tablet breakpoint
+    - Test search bar positioning across breakpoints
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+
+- [ ] 3. Fix Navbar component responsive behavior
+  - [x] 3.1 Implement mobile navigation for Navbar
+    - Add hamburger menu similar to Homenav
+    - Stack navigation links vertically on mobile
+    - Ensure proper spacing and touch targets
+    - _Requirements: 1.1, 1.2, 1.6_
+  
+  - [x] 3.2 Fix tablet and desktop layouts for Navbar
+    - Adjust spacing and alignment for tablet
+    - Ensure horizontal layout on desktop
+    - _Requirements: 1.3, 1.4_
+  
+  - [ ]* 3.3 Write unit tests for Navbar responsive behavior
+    - Test layout at each breakpoint
+    - Test hamburger menu functionality
+    - _Requirements: 1.1, 1.2, 1.3, 1.4_
+
+- [ ] 4. Fix movie grid responsive layouts
+  - [x] 4.1 Update popular movie grid CSS
+    - Set 2 columns on mobile with 10px gap
+    - Set 3-4 columns on tablet with 15px gap
+    - Set auto-fill with minmax(240px, 1fr) on desktop with 25px gap
+    - _Requirements: 2.1, 2.2, 2.3_
+  
+  - [x] 4.2 Ensure movie thumbnail aspect ratios
+    - Use aspect-ratio: 2/3 for all movie thumbnails
+    - Add object-fit: cover for images
+    - Test across all breakpoints
+    - _Requirements: 2.4_
+  
+  - [x] 4.3 Fix new release grid layouts
+    - Set 2 columns on mobile
+    - Set 3 columns on tablet
+    - Set 5 columns on desktop
+    - _Requirements: 10.4, 10.5, 10.6_
+  
+  - [x] 4.4 Fix category grid layouts
+    - Set 1 column on mobile
+    - Set 2 columns on tablet
+    - Set auto-fit with minmax(250px, 1fr) on desktop
+    - _Requirements: 10.1, 10.2, 10.3_
+  
+  - [ ]* 4.5 Write property test for aspect ratio invariant
+    - **Property 3: Movie Thumbnail Aspect Ratio Invariant**
+    - **Validates: Requirements 2.4**
+  
+  - [ ]* 4.6 Write property test for grid adaptation
+    - **Property 6: Grid Layout Adaptation**
+    - **Validates: Requirements 2.5**
+  
+  - [ ]* 4.7 Write unit tests for grid layouts
+    - Test column counts at each breakpoint
+    - Test gap sizes at each breakpoint
+    - _Requirements: 2.1, 2.2, 2.3, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
+
+- [x] 5. Checkpoint - Ensure navigation and grids work correctly
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 6. Fix Hero section responsive behavior
+  - [x] 6.1 Implement responsive typography for hero title
+    - Set font-size to 2rem on mobile
+    - Set font-size to 3rem on tablet
+    - Set font-size to 3.6rem on desktop
+    - _Requirements: 3.1, 3.2, 3.3_
+  
+  - [x] 6.2 Implement responsive button layout
+    - Stack buttons vertically with full width on mobile
+    - Ensure minimum 44px height for touch targets
+    - Keep horizontal layout on tablet and desktop
+    - _Requirements: 3.4, 8.1_
+  
+  - [x] 6.3 Implement text truncation for mobile
+    - Add line-clamp: 3 for movie description on mobile
+    - Ensure ellipsis overflow
+    - _Requirements: 3.5_
+  
+  - [x] 6.4 Fix hero background image positioning
+    - Adjust background-position for mobile (top center)
+    - Ensure proper coverage across all viewports
+    - Update gradient overlays for mobile readability
+    - _Requirements: 3.6_
+  
+  - [ ]* 6.5 Write unit tests for hero section
+    - Test title font sizes at each breakpoint
+    - Test button layout on mobile
+    - Test text truncation on mobile
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+
+- [ ] 7. Fix search results page responsive layout
+  - [x] 7.1 Update search results grid
+    - Set 2 columns on mobile with consistent spacing
+    - Ensure proper gap and padding
+    - _Requirements: 4.4_
+  
+  - [x] 7.2 Add focus indicators for search bar
+    - Ensure visible focus styles without layout shift
+    - Test across all viewports
+    - _Requirements: 4.3_
+  
+  - [ ]* 7.3 Write property test for focus indicators
+    - **Property 7: Focus Indicator Visibility**
+    - **Validates: Requirements 4.3**
+  
+  - [ ]* 7.4 Write unit tests for search results
+    - Test grid layout on mobile
+    - Test focus states
+    - _Requirements: 4.3, 4.4_
+
+- [ ] 8. Fix footer responsive behavior
+  - [x] 8.1 Implement mobile footer layout
+    - Stack footer content vertically
+    - Use left alignment
+    - Add 30px gap between sections
+    - _Requirements: 5.1_
+  
+  - [-] 8.2 Implement tablet and desktop footer layouts
+    - Use horizontal layout with space-between
+    - Ensure proper spacing
+    - _Requirements: 5.2, 5.3_
+  
+  - [ ] 8.3 Ensure touch-friendly social icons
+    - Set minimum 44x44px for social icon links
+    - Add proper spacing between icons
+    - _Requirements: 5.4, 8.4_
+  
+  - [ ]* 8.4 Write property test for touch target spacing
+    - **Property 2: Touch Target Spacing**
+    - **Validates: Requirements 8.4**
+  
+  - [ ]* 8.5 Write unit tests for footer layouts
+    - Test layout direction at each breakpoint
+    - Test social icon sizing on mobile
+    - _Requirements: 5.1, 5.2, 5.3, 5.4_
+
+- [ ] 9. Fix movie detail page responsive layout
+  - [~] 9.1 Implement mobile layout for movie detail page
+    - Stack poster and movie info vertically
+    - Center poster with max-width 300px
+    - Adjust hero-content padding
+    - _Requirements: 11.1_
+  
+  - [~] 9.2 Implement tablet layout for movie detail page
+    - Display poster and info side-by-side
+    - Adjust sizing and spacing
+    - _Requirements: 11.2_
+  
+  - [~] 9.3 Implement desktop layout for movie detail page
+    - Optimize spacing and sizing
+    - Ensure proper two-column grid
+    - _Requirements: 11.3_
+  
+  - [~] 9.4 Fix sidebar positioning on mobile
+    - Move sidebar below main content using CSS order
+    - Adjust grid to single column
+    - _Requirements: 11.5_
+  
+  - [~] 9.5 Adjust cast card and video thumbnail sizes
+    - Set cast card width to 120px on mobile, 140px on desktop
+    - Set video card width to 280px on mobile, 400px on desktop
+    - _Requirements: 11.4, 11.6_
+  
+  - [ ]* 9.6 Write unit tests for movie detail page
+    - Test layout at each breakpoint
+    - Test sidebar positioning on mobile
+    - Test cast card and video thumbnail widths
+    - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
+
+- [ ] 10. Implement horizontal scroll prevention
+  - [~] 10.1 Add max-width constraints to images
+    - Set max-width: 100% for all img elements
+    - Ensure images don't overflow containers
+    - _Requirements: 7.4_
+  
+  - [~] 10.2 Add overflow-x: hidden to body and containers
+    - Prevent horizontal scroll at root level
+    - Test across all pages and viewports
+    - _Requirements: 7.1, 7.2, 7.3_
+  
+  - [~] 10.3 Fix any remaining overflow issues
+    - Check for fixed-width elements that exceed viewport
+    - Adjust grid and flex layouts to be fully responsive
+    - _Requirements: 7.5_
+  
+  - [ ]* 10.4 Write property test for no horizontal scroll
+    - **Property 4: No Horizontal Scroll**
+    - **Validates: Requirements 7.1, 7.2, 7.3, 7.5**
+  
+  - [ ]* 10.5 Write property test for image max-width
+    - **Property 5: Image Max-Width Constraint**
+    - **Validates: Requirements 7.4**
+
+- [ ] 11. Implement consistent spacing system
+  - [~] 11.1 Update horizontal padding across all pages
+    - Set 4% padding on mobile and tablet
+    - Set 4-5% padding on desktop
+    - Apply consistently to all page sections
+    - _Requirements: 6.1, 6.2, 6.3_
+  
+  - [~] 11.2 Update section heading margins
+    - Set margin-bottom to 20px on mobile
+    - Set margin-bottom to 30px on desktop
+    - _Requirements: 6.4_
+  
+  - [~] 11.3 Update content section gaps
+    - Set gap to 15px on mobile
+    - Set gap to 25px on desktop
+    - _Requirements: 6.5_
+  
+  - [ ]* 11.4 Write unit tests for spacing consistency
+    - Test padding values at each breakpoint
+    - Test margin and gap values
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+
+- [ ] 12. Implement text readability improvements
+  - [~] 12.1 Set minimum font sizes
+    - Set body text to 14px on mobile
+    - Set body text to 15px on tablet and desktop
+    - _Requirements: 9.1, 9.2, 9.3_
+  
+  - [~] 12.2 Ensure text contrast over images
+    - Verify gradient overlays provide sufficient contrast
+    - Add text-shadow where needed
+    - _Requirements: 9.5_
+  
+  - [ ]* 12.3 Write unit tests for typography
+    - Test minimum font sizes at each breakpoint
+    - _Requirements: 9.1, 9.2, 9.3_
+
+- [ ] 13. Add hamburger menu state management
+  - [~] 13.1 Implement resize listener to close menu
+    - Add useEffect hook to listen for window resize
+    - Close mobile menu when viewport exceeds mobile breakpoint
+    - Clean up event listener on unmount
+    - _Requirements: 1.1, 1.2_
+  
+  - [ ]* 13.2 Write unit tests for menu state management
+    - Test menu closes on resize
+    - Test menu state persistence
+    - _Requirements: 1.1, 1.2_
+
+- [~] 14. Final checkpoint - Comprehensive testing
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 15. Cross-browser and device testing
+  - [~] 15.1 Test on Chrome, Firefox, Safari, Edge
+    - Verify layouts work correctly
+    - Check for browser-specific issues
+    - _Requirements: All_
+  
+  - [~] 15.2 Test on real mobile devices
+    - Test on iOS devices (iPhone SE, iPhone 14, iPad)
+    - Test on Android devices (various screen sizes)
+    - Verify touch targets are easily tappable
+    - _Requirements: 1.6, 5.4, 8.1, 8.2, 8.3, 8.4, 8.5_
+  
+  - [~] 15.3 Test landscape and portrait orientations
+    - Verify layouts adapt correctly
+    - Check for any orientation-specific issues
+    - _Requirements: All_
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for faster MVP
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties across random inputs
+- Unit tests validate specific examples and edge cases at exact breakpoints
+- The implementation follows a component-by-component approach for easier debugging
+- All CSS changes should be tested visually at 320px, 480px, 768px, 1024px, and 1920px widths

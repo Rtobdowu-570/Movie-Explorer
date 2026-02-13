@@ -37,7 +37,7 @@ const SearchResults = () => {
   console.log("Rendering results:", results);
   return (
     <div className="search-page">
-      <h2 style={{ margin: "20px" }}>Results for: {movieQuery}</h2>
+      <h2>Results for: {movieQuery}</h2>
       <div className="popular-movie-grid">
         {results.map((movie) => (
           <div className="popular-movie-info" key={movie.id} onClick={() => navigate(`/movie/${movie.id}`)} style={{ cursor: "pointer" }}>

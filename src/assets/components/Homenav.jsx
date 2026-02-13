@@ -1,13 +1,28 @@
 import React from "react";
-import { useState } from "react";
-import { FaSearch, FaBell } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaSearch, FaBell, FaBars, FaTimes } from "react-icons/fa";
 import "../styles/home.css";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
 
 const Homenav = () => {
   const [query, setQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+
+  // Close menu when viewport exceeds mobile breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 480 && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [menuOpen]);
 
   const handleSearch = (e) => {
     if (e) e.preventDefault();
@@ -26,6 +41,16 @@ const Homenav = () => {
             </Link>
           </div>
         </div>
+        
+        <button 
+          className="hamburger-menu" 
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <FaTimes /> : <FaBars />}
+        </button>
+
         <div className="home-center-nav">
           <div className="home-search-bar">
             <FaSearch className="search-icon" />
@@ -56,6 +81,23 @@ const Homenav = () => {
           </div>
         </div>
       </nav>
+      
+      {menuOpen && (
+        <>
+          <div className="nav-overlay" onClick={toggleMenu} />
+          <div className="nav-links-mobile">
+            <Link to="/" className="mobile-nav-link" onClick={toggleMenu}>
+              Home
+            </Link>
+            <Link to="/movie" className="mobile-nav-link" onClick={toggleMenu}>
+              Movies
+            </Link>
+            <Link to="/search" className="mobile-nav-link" onClick={toggleMenu}>
+              Search
+            </Link>
+          </div>
+        </>
+      )}
     </>
   );
 };
