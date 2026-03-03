@@ -56,7 +56,7 @@ const Vidsection = () => {
           </div>
           <div className="trending-now-container">
             <div className="trending-movie-grid">
-              {trending.map((movie) => (
+              {trending && trending.length > 0 ? trending.map((movie) => (
                  <div 
                   className="trending-movie-info" 
                   key={movie.id}
@@ -67,7 +67,7 @@ const Vidsection = () => {
                     <div className="trending-movie-thumbnail">
                       <img
                         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                        alt=""
+                        alt={movie.title || "Movie poster"}
                         className="trending-movie-img"
                       />
                     </div>
@@ -77,7 +77,11 @@ const Vidsection = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div style={{ textAlign: "center", padding: "20px", color: "#888" }}>
+                  Loading trending movies...
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -100,7 +104,7 @@ const Vidsection = () => {
             <span className="view-all" onClick={() => navigate("/movie/#upcoming")}>View All</span>
           </div>
           <div className="new-movie-grid">
-            {upcoming.slice(0, 9).map((movie) => (
+            {upcoming && upcoming.length > 0 ? upcoming.slice(0, 9).map((movie) => (
               <div
                 className="new-movie-info"
                 key={movie.id}
@@ -109,13 +113,17 @@ const Vidsection = () => {
                 <div className="new-release-thumbnail">
                   <img
                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    alt=""
+                    alt={movie.title || "Movie poster"}
                   />
                 </div>
                 <p className="movie-new-release-name">{movie.title}</p>
                 <p className="movie-new-release-year">{movie.release_date}</p>
               </div>
-            ))}
+            )) : (
+              <div style={{ textAlign: "center", padding: "20px", color: "#888", gridColumn: "1 / -1" }}>
+                Loading upcoming movies...
+              </div>
+            )}
           </div>
         </div>
       </div>
