@@ -1,134 +1,81 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { FaArrowRight, FaPlay } from "react-icons/fa";
-import "../styles/home.css";
+import { useEffect, useState } from "react";
+import { FaArrowRight } from "react-icons/fa";
+import Button from "./Button";
+import MediaSection from "./MediaSection";
+import { LoadingGrid, MovieGrid } from "./MovieCard";
+import StatusPanel from "./StatusPanel";
+import { getTrendingAll, getUpcomingMovies } from "../api/tmdb";
 
-const Vidsection = () => {
-  const navigate = useNavigate();
+const initialSection = { items: [], loading: true, error: "" };
 
-  const [trending, setTrending] = useState([]);
-  const [upcoming, setUpcoming] = useState([]);
+function SectionContent({ section, onRetry, variant = "rail" }) {
+  if (section.loading) return <LoadingGrid count={5} variant={variant} />;
+  if (section.error) {
+    return (
+      <StatusPanel kind="error" message={section.error} title="This collection didn't load." compact>
+        <Button onClick={onRetry} variant="secondary">Try again</Button>
+      </StatusPanel>
+    );
+  }
+  if (!section.items.length) {
+    return <StatusPanel title="No titles to show just yet." message="Check back soon for new picks." compact />;
+  }
+  return <MovieGrid movies={section.items.slice(0, 10)} variant={variant} />;
+}
+
+export default function Vidsection() {
+  const [trending, setTrending] = useState(initialSection);
+  const [upcoming, setUpcoming] = useState({ ...initialSection, loading: true });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+    const controller = new AbortController();
+    async function loadSections() {
+      const responses = await Promise.allSettled([
+        getTrendingAll({ signal: controller.signal }),
+        getUpcomingMovies({ signal: controller.signal }),
+      ]);
+      if (controller.signal.aborted) return;
 
-    const fetchMovieData = async () => {
-      const options = {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${TMDB_API_KEY}`,
-        },
-      };
+      const nextState = responses.map((response) => {
+        if (response.status === "rejected") {
+          return { items: [], loading: false, error: response.reason?.message || "Movie data could not be loaded." };
+        }
+        return { items: response.value.results || [], loading: false, error: "" };
+      });
+      setTrending(nextState[0]);
+      setUpcoming(nextState[1]);
+    }
 
-      try {
-        const [trendingRes, upcomingRes] = await Promise.all([
-          fetch(
-            "https://api.themoviedb.org/3/trending/all/day?language=en-US",
-            options,
-          ),
-          fetch(
-            "https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1",
-            options,
-          ),
-        ]);
+    loadSections();
+    return () => controller.abort();
+  }, [attempt]);
 
-        const trendingData = await trendingRes.json();
-        const upcomingData = await upcomingRes.json();
-
-        setTrending(trendingData.results);
-        setUpcoming(upcomingData.results);
-      } catch (err) {
-        console.error("Failed to fetch upcoming movies:", err);
-      }
-    };
-
-    fetchMovieData();
-  }, []);
+  const retry = () => {
+    setTrending({ items: [], loading: true, error: "" });
+    setUpcoming({ items: [], loading: true, error: "" });
+    setAttempt((value) => value + 1);
+  };
 
   return (
-    <>
-      <div className="movie-section">
-        <div className="trending-now">
-          <div className="title-text">
-            <h1>Trending Now</h1> <FaArrowRight className="title-icon" />
-          </div>
-          <div className="trending-now-container">
-            <div className="trending-movie-grid">
-              {trending && trending.length > 0 ? trending.map((movie) => (
-                 <div 
-                  className="trending-movie-info" 
-                  key={movie.id}
-                  onClick={() => navigate(`/movie/${movie.id}`)}
-                  style={{ cursor: "pointer" }}
-                 >
-                  <div className="trending-movie-container">
-                    <div className="trending-movie-thumbnail">
-                      <img
-                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                        alt={movie.title || "Movie poster"}
-                        className="trending-movie-img"
-                      />
-                    </div>
-                    <div className="trending-movie-text">
-                      <FaPlay className="play-icon" />
-                      <div className="movie-texts"></div>
-                    </div>
-                  </div>
-                </div>
-              )) : (
-                <div style={{ textAlign: "center", padding: "20px", color: "#888" }}>
-                  Loading trending movies...
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+    <div className="home-collections page-width">
+      <MediaSection
+        action={<Button to="/movie" variant="quiet">Explore the catalogue <FaArrowRight aria-hidden="true" /></Button>}
+        description="The films and series everyone is talking about."
+        eyebrow="ON THE RADAR"
+        title="Trending now"
+      >
+        <SectionContent onRetry={retry} section={trending} />
+      </MediaSection>
 
-        <div className="browse-by-category">
-          <div className="title-text">
-            <h1>Browse by Category</h1>
-          </div>
-          <div className="category-grid">
-            <div className="category-name">Action</div>
-            <div className="category-name">Comedy</div>
-            <div className="category-name">Horror</div>
-            <div className="category-name">Sci-fi</div>
-          </div>
-        </div>
-
-        <div className="new-releases">
-          <div className="title-text-releases">
-            <h1>Upcoming</h1>
-            <span className="view-all" onClick={() => navigate("/movie/#upcoming")}>View All</span>
-          </div>
-          <div className="new-movie-grid">
-            {upcoming && upcoming.length > 0 ? upcoming.slice(0, 9).map((movie) => (
-              <div
-                className="new-movie-info"
-                key={movie.id}
-                onClick={() => navigate(`/movie/${movie.id}`)}
-              >
-                <div className="new-release-thumbnail">
-                  <img
-                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    alt={movie.title || "Movie poster"}
-                  />
-                </div>
-                <p className="movie-new-release-name">{movie.title}</p>
-                <p className="movie-new-release-year">{movie.release_date}</p>
-              </div>
-            )) : (
-              <div style={{ textAlign: "center", padding: "20px", color: "#888", gridColumn: "1 / -1" }}>
-                Loading upcoming movies...
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
+      <MediaSection
+        action={<Button to="/movie#upcoming" variant="quiet">See upcoming releases <FaArrowRight aria-hidden="true" /></Button>}
+        description="A first look at what is heading to the big screen."
+        eyebrow="COMING SOON"
+        title="On the horizon"
+      >
+        <SectionContent onRetry={retry} section={upcoming} variant="grid" />
+      </MediaSection>
+    </div>
   );
-};
-
-export default Vidsection;
+}

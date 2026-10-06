@@ -1,35 +1,29 @@
-import React from "react";
-import { FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa";
+import { Link } from "react-router";
 
-const Footer = () => {
+export default function Footer() {
   return (
-    <>
-      <footer className="footer-container">
-        <div className="footer-text">
-          <div className="footer-homepage-text">
-            <h1>Movie Scope</h1>
-          </div>
-          <div className="footer-subtext">
-            <p>© 2024 Movie Scope. All rights reserved.</p>
-          </div>
+    <footer className="site-footer">
+      <div className="site-footer__inner">
+        <div className="site-footer__brand">
+          <Link aria-label="MovieScope home" className="brand" to="/">
+            <span aria-hidden="true" className="brand__mark">M</span>
+            <span>Movie<span className="brand__accent">Scope</span></span>
+          </Link>
+          <p>A considered guide to your next great watch.</p>
         </div>
-
-        <div className="footer-links">
-          <div className="footer-link">
-            <a href="https://x.com/AndrewPete38959">
-              <FaTwitter />
-            </a>
-            <a href="https://github.com/Rtobdowu-570">
-              <FaGithub />
-            </a>
-            <a href="www.linkedin.com/in/fasasi-pamilerin-9901793a7">
-              <FaLinkedin />
-            </a>
-          </div>
+        <div className="site-footer__meta">
+          <nav aria-label="Footer navigation" className="site-footer__links">
+            <Link to="/">Home</Link>
+            <Link to="/movie">Discover</Link>
+            <a href="https://github.com/Rtobdowu-570/Movie-Explorer" rel="noreferrer" target="_blank">Source</a>
+          </nav>
+          <p>
+            Movie data and images by <a href="https://www.themoviedb.org/" rel="noreferrer" target="_blank">TMDB</a>.
+            This product uses the TMDB API but is not endorsed or certified by TMDB.
+          </p>
+          <span>© {new Date().getFullYear()} MovieScope</span>
         </div>
-      </footer>
-    </>
+      </div>
+    </footer>
   );
-};
-
-export default Footer;
+}

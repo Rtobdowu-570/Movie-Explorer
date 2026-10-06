@@ -1,72 +1,48 @@
-# MovieHook 🎬
+# MovieScope
 
-MovieHook is a modern, responsive web application meant for exploring movies and TV shows. Built with **React** and **Vite**, it leverages the **TMDB (The Movie Database) API** to provide real-time data on trending, popular, and upcoming entertainment.
+MovieScope is a responsive film and television discovery app built with React, Vite and the TMDB API. Browse what is trending, find upcoming releases, search films by title, and explore detailed movie and series profiles.
 
-## 🚀 Features
+## Features
 
-### 🏠 Homepage
-- **Dynamic Hero Section**: Features a random trending movie with high-quality backdrop, title, and overview.
-- **Trending & Popular**: Horizontal scrollable lists showing the latest hits.
-- **Upcoming Releases**: Stay updated with what's coming next to theaters.
-- **TV Shows**: Explore popular television series.
+- A featured film selected from trending titles, with its backdrop, rating and profile link
+- Trending titles and upcoming releases on the home page
+- A discovery catalogue for trending titles, popular films, upcoming releases and popular series
+- Movie search with URL-based results at `/search?q=...`
+- Movie and TV profiles with synopsis, ratings, cast, crew, videos, reviews and available production details
+- Responsive layouts, loading skeletons, useful error and empty states, and keyboard-accessible controls
 
-### 🎥 Movie Details
-- **Rich Info**: Comprehensive details including cast, crew, runtime, budget, and revenue.
-- **Trailers & Videos**: Watch trailers and related videos directly within the app.
-- **Reviews**: Read user reviews and ratings.
-- **Cast & Crew**: interactive list of valid cast members and production crew.
-- **Stats**: View release dates, certification, and technical details.
+## Stack
 
-### 🔍 Search
-- **Instant Search**: Find movies by title using the search bar.
-- **Results Page**: Grid view of search results with quick access to details.
+- React 19 and Vite
+- React Router 7
+- React Icons
+- Custom responsive CSS
+- TMDB API
 
-## 🛠️ Tech Stack
+## Getting started
 
-- **Frontend Framework**: [React 19](https://react.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Routing**: [React Router v7](https://reactrouter.com/)
-- **Styling**: Custom CSS (Responsive Design)
-- **API**: [The Movie Database (TMDB)](https://www.themoviedb.org/documentation/api)
-- **Icons**: React Icons
-- **Notifications**: React Toastify
+1. Install dependencies:
+   ```bash
+   npm ci
+   ```
+2. Create `.env.local` in the project root and add a TMDB API Read Access Token:
+   ```env
+   VITE_TMDB_API_KEY=your_tmdb_read_access_token
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-## 📦 Installation & Setup
+Because `VITE_` variables are included in the browser bundle, use a TMDB read token intended for client-side use; never put a private server-side credential in this file. Restart the development server after changing the token.
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/yourusername/movie-hook.git
-    cd movie-hook
-    ```
+## Scripts
 
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+- `npm run dev` — start the development server
+- `npm run build` — create a production build in `dist/`
+- `npm run lint` — run ESLint
+- `npm run preview` — serve the production build locally
 
-3.  **Environment Configuration**
-    Create a `.env` file in the root directory and add your TMDB API key:
-    ```env
-    VITE_TMDB_API_KEY=your_api_key_here
-    ```
+## TMDB attribution
 
-4.  **Run the development server**
-    ```bash
-    npm run dev
-    ```
-
-## 🔮 Future Improvements
-
-Here are some features planned for future updates:
-
-- [ ] **User Authentication**: Sign up and login to save preferences.
-- [ ] **Watchlist & Favorites**: Ability to save movies to a personal list (currently UI only).
-- [ ] **TV Show Details**: Dedicated details page for TV series (currently shares structure or redirects).
-- [ ] **Advanced Filtering**: Filter by genre, year, and rating.
-- [ ] **Pagination**: Load more results for trending and popular lists.
-- [ ] **Dark/Light Theme**: User-toggleable themes.
-- [ ] **Person Details**: Click on a cast member to see their biography and filmography.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+This product uses the TMDB API but is not endorsed or certified by TMDB. Movie data and images are provided by TMDB.

@@ -1,86 +1,101 @@
-import { useState, useEffect } from "react";
-import { FaSearch, FaBars, FaTimes } from "react-icons/fa";
-import { Link } from "react-router";
-import "../styles/main.css";
+import { useEffect, useRef, useState } from "react";
+import { FaBars, FaSearch, FaTimes } from "react-icons/fa";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
-const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+function NavigationLinks({ onNavigate }) {
+  return (
+    <>
+      <NavLink end onClick={onNavigate} to="/">Home</NavLink>
+      <NavLink onClick={onNavigate} to="/movie">Discover</NavLink>
+    </>
+  );
+}
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+export default function Navbar() {
+  const [menuOpenAt, setMenuOpenAt] = useState("");
+  const menuButtonRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const menuOpen = menuOpenAt === location.pathname;
 
-  // Close menu when viewport exceeds mobile breakpoint
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 480 && menuOpen) {
-        setMenuOpen(false);
+    const closeMenu = () => setMenuOpenAt("");
+    window.addEventListener("popstate", closeMenu);
+    return () => window.removeEventListener("popstate", closeMenu);
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpenAt("");
+        menuButtonRef.current?.focus();
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
   }, [menuOpen]);
 
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const search = String(new FormData(event.currentTarget).get("q") || "").trim();
+    if (!search) return;
+    setMenuOpenAt("");
+    navigate(`/search?q=${encodeURIComponent(search)}`);
+  };
+
   return (
-    <>
-      <nav className="main-nav">
-        <div className="right-nav">
-          <ul className="right-nav-list">
-            <li>
-              <Link className="head" to="/">
-                MovieHook
-              </Link>
-            </li>
-            <li className="nav-link-desktop">
-              <Link to="/">Home</Link>
-            </li>
-            <li className="nav-link-desktop">
-              <Link to="/movie">Movies</Link>
-            </li>
-            <li className="nav-link-desktop">
-              <Link to="/movie">Tv Shows</Link>
-            </li>
-          </ul>
-        </div>
-        
-        <button 
-          className="hamburger-menu-navbar" 
-          onClick={toggleMenu}
-          aria-label="Toggle navigation menu"
+    <header className="site-header">
+      <div className="site-header__inner">
+        <Link aria-label="MovieScope home" className="brand" to="/">
+          <span aria-hidden="true" className="brand__mark">M</span>
+          <span>Movie<span className="brand__accent">Scope</span></span>
+        </Link>
+
+        <nav aria-label="Main navigation" className="site-header__nav">
+          <NavigationLinks />
+        </nav>
+
+        <form key={location.search} className="site-search" onSubmit={handleSearch} role="search">
+          <FaSearch aria-hidden="true" className="site-search__icon" />
+          <label className="sr-only" htmlFor="site-search-input">Search films</label>
+          <input
+            autoComplete="off"
+            defaultValue={new URLSearchParams(location.search).get("q") || ""}
+            id="site-search-input"
+            name="q"
+            placeholder="Search films"
+            required
+            type="search"
+          />
+          <button aria-label="Submit search" className="site-search__submit" type="submit">
+            <FaSearch aria-hidden="true" />
+          </button>
+        </form>
+
+        <button
+          aria-controls="mobile-navigation"
           aria-expanded={menuOpen}
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          className="site-header__menu-button"
+          onClick={() => setMenuOpenAt(menuOpen ? "" : location.pathname)}
+          ref={menuButtonRef}
+          type="button"
         >
-          {menuOpen ? <FaTimes /> : <FaBars />}
+          {menuOpen ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
         </button>
+      </div>
 
-        <div className="left-nav">
-          <ul className="left-nav-list">
-            <li>
-              <FaSearch className="search-icon" />
-            </li>
-            <li>
-              <a href="#">Sign in</a>
-            </li>
-          </ul>
-        </div>
+      <nav
+        aria-hidden={!menuOpen}
+        aria-label="Mobile navigation"
+        className={`site-header__mobile-nav${menuOpen ? " is-open" : ""}`}
+        id="mobile-navigation"
+      >
+        <NavigationLinks onNavigate={() => setMenuOpenAt("")} />
       </nav>
-      
-      {menuOpen && (
-        <>
-          <div className="nav-overlay-navbar" onClick={toggleMenu} />
-          <div className="nav-links-mobile-navbar">
-            <Link to="/" className="mobile-nav-link-navbar" onClick={toggleMenu}>
-              Home
-            </Link>
-            <Link to="/movie" className="mobile-nav-link-navbar" onClick={toggleMenu}>
-              Movies
-            </Link>
-            <Link to="/movie" className="mobile-nav-link-navbar" onClick={toggleMenu}>
-              Tv Shows
-            </Link>
-          </div>
-        </>
-      )}
-    </>
+    </header>
   );
-};
-
-export default Navbar;
+}

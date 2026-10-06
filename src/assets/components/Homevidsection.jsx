@@ -1,286 +1,184 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { FaStar } from "react-icons/fa";
-import "../styles/home.css";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import Button from "./Button";
+import MediaSection from "./MediaSection";
+import { LoadingGrid, MovieGrid } from "./MovieCard";
+import StatusPanel from "./StatusPanel";
+import {
+  getDiscoverMovies,
+  getMovieGenres,
+  getPopularMovies,
+  getPopularTv,
+  getTrendingAll,
+  getUpcomingMovies,
+} from "../api/tmdb";
 
-const Homevidsection = () => {
-  const navigate = useNavigate();
+const sources = [
+  ["trending", getTrendingAll],
+  ["popular", getPopularMovies],
+  ["upcoming", getUpcomingMovies],
+  ["tv", getPopularTv],
+  ["discover", getDiscoverMovies],
+  ["genres", getMovieGenres],
+];
 
-  const [trending, setTrending] = useState([]);
-  const [genreList, setGenreList] = useState([]);
-  const [tv, setTv] = useState([]);
-  const [popular, setPopular] = useState([]);
-  const [movie, setMovie] = useState([]);
-  const [upcoming, setUpcoming] = useState([]);
-  const [showDisplay, setShowDisplay] = useState(false);
-
-  const handleClick = () => {
-    !showDisplay ? setShowDisplay(true) : setShowDisplay(false);
-  };
+export default function Homevidsection() {
+  const [catalog, setCatalog] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [showMore, setShowMore] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const { hash } = useLocation();
 
   useEffect(() => {
-    const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+    const controller = new AbortController();
+    async function loadCatalog() {
+      const responses = await Promise.allSettled(
+        sources.map(([, fetcher]) => fetcher({ signal: controller.signal })),
+      );
+      if (controller.signal.aborted) return;
 
-    const fetchMovieData = async () => {
-      const options = {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${TMDB_API_KEY}`,
-        },
+      const nextCatalog = {
+        trending: [],
+        popular: [],
+        upcoming: [],
+        tv: [],
+        discover: [],
+        genres: [],
       };
+      const nextErrors = {};
 
-      try {
-        const [tvRes, popularRes, trendingRes, genresRes, movieRes, upcomingRes] =
-          await Promise.all([
-            fetch(
-              "https://api.themoviedb.org/3/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc",
-              options,
-            ),
-            fetch(
-              "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
-              options,
-            ),
-            fetch(
-              "https://api.themoviedb.org/3/trending/all/day?language=en-US",
-              options,
-            ),
-            fetch("https://api.themoviedb.org/3/genre/movie/list", options),
+      responses.forEach((response, index) => {
+        const [key] = sources[index];
+        if (response.status === "fulfilled") {
+          nextCatalog[key] = key === "genres"
+            ? response.value.genres || []
+            : response.value.results || [];
+        } else if (key !== "genres") {
+          nextErrors[key] = response.reason?.message || "Movie data could not be loaded.";
+        }
+      });
 
-            fetch(
-              "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc",
-              options,
-            ),
-            fetch(
-            "https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1",
-            options,
-          ),
-          ]);
+      setCatalog(nextCatalog);
+      setErrors(nextErrors);
+      setLoading(false);
+    }
 
-        const tvData = await tvRes.json();
-        const popularData = await popularRes.json();
-        const trendingData = await trendingRes.json();
-        const genresData = await genresRes.json();
-        const movieData = await movieRes.json();
-        const upcomingData = await upcomingRes.json();
+    loadCatalog();
+    return () => controller.abort();
+  }, [attempt]);
 
-        setTv(tvData.results);
-        setPopular(popularData.results);
-        setTrending(trendingData.results);
-        setGenreList(genresData.genres);
-        setMovie(movieData.results);
-        setUpcoming(upcomingData.results);
-      } catch (err) {
-        console.error("Failed to fetch movie info:", err);
-      }
-    };
+  useEffect(() => {
+    if (hash !== "#upcoming" || loading) return;
+    const target = document.getElementById("upcoming");
+    if (!target) return;
+    target.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [hash, loading]);
 
-    fetchMovieData();
-  }, []);
+
+
+  const retry = () => {
+    setCatalog(null);
+    setErrors({});
+    setLoading(true);
+    setAttempt((value) => value + 1);
+  };
+
+  const genresById = new Map((catalog?.genres || []).map((genre) => [genre.id, genre.name]));
+  const genreFor = (movie) =>
+    (movie.genre_ids || []).map((id) => genresById.get(id)).find(Boolean) || "";
+
+  const renderSection = (key, mediaType, includeGenres = false) => {
+    if (loading) return <LoadingGrid count={5} />;
+    if (errors[key]) {
+      return (
+        <StatusPanel kind="error" message={errors[key]} title="This collection didn't load.">
+          <Button onClick={retry} variant="secondary">
+            Try again
+          </Button>
+        </StatusPanel>
+      );
+    }
+
+    const titles = catalog?.[key] || [];
+    if (!titles.length) {
+      return <StatusPanel title="No titles to show just yet." message="Check back soon for new picks." />;
+    }
+
+    return (
+      <MovieGrid
+        getGenre={includeGenres ? genreFor : undefined}
+        mediaType={mediaType}
+        movies={titles.slice(0, key === "discover" ? 20 : 10)}
+      />
+    );
+  };
 
   return (
-    <>
-      <main className="main-section">
-        <div className="main-text">Trending Movies</div>
-        <div className="new-movie-grid">
-          {trending.map((movie) => (
-            <div
-              className="new-movie-info"
-              key={movie.id}
-              onClick={() => navigate(`/movie/${movie.id}`)}
-            >
-              <div className="popular-movie-thumbnail">
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title || movie.name}
-                />
-                <div className="movie-rating">
-                  <FaStar className="star-icon" />{" "}
-                  <span>{movie.vote_average.toFixed(1)}</span>
-                </div>
-              </div>
-              <div className="popular-movie-name">
-                {movie.title || movie.name}
-              </div>
-              <div className="popular-movie-less-info">
-                <div className="popular-movie-year">
-                  {movie.release_date || movie.first_air_date}
-                </div>
-                <div className="popular-movie-genre">
-                  {genreList
-                    .filter((genre) => movie.genre_ids.includes(genre.id))
-                    .slice(0, 1)
-                    .map(
-                      (genre) =>
-                        genre.name[0].toUpperCase() + genre.name.slice(1),
-                    )
-                    .join(", ")}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+    <main className="catalog-page page-width">
+      <header className="page-intro">
+        <p className="eyebrow">THE MOVIES & SERIES</p>
+        <h1>Find your next favourite.</h1>
+        <p>A thoughtful starting point for whatever you feel like watching.</p>
+      </header>
 
-        <div className="main-text">Popular Movies</div>
-        <div className="new-movie-grid">
-          {popular.map((movie) => (
-            <div
-              className="new-movie-info"
-              key={movie.id}
-              onClick={() => navigate(`/movie/${movie.id}`)}
-            >
-              <div className="popular-movie-thumbnail">
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title}
-                />
-                <div className="movie-rating">
-                  <FaStar className="star-icon" />{" "}
-                  <span>{movie.vote_average.toFixed(1)}</span>
-                </div>
-              </div>
-              <div className="popular-movie-name">{movie.title}</div>
-              <div className="popular-movie-less-info">
-                <div className="popular-movie-year">{movie.release_date}</div>
-                <div className="popular-movie-genre">
-                  {genreList
-                    .filter((genre) => movie.genre_ids.includes(genre.id))
-                    .slice(0, 1)
-                    .map(
-                      (genre) =>
-                        genre.name[0].toUpperCase() + genre.name.slice(1),
-                    )
-                    .join(", ")}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <MediaSection
+        description="The films and series finding an audience today."
+        eyebrow="IN THE MOMENT"
+        title="Trending now"
+      >
+        {renderSection("trending")}
+      </MediaSection>
 
-        <div className="main-text" id="upcoming">Upcoming Movies</div>
-        <div className="new-movie-grid">
-          {upcoming.map((movie) => (
-            <div
-              className="new-movie-info"
-              key={movie.id}
-              onClick={() => navigate(`/movie/${movie.id}`)}
-            >
-              <div className="popular-movie-thumbnail">
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.name}
-                />
-                <div className="movie-rating">
-                  <FaStar className="star-icon" />{" "}
-                  <span>{movie.vote_average.toFixed(1)}</span>
-                </div>
-              </div>
-              <div className="popular-movie-name">{movie.name}</div>
-              <div className="popular-movie-less-info">
-                <div className="popular-movie-year">{movie.first_air_date}</div>
-                <div className="popular-movie-genre">
-                  {genreList
-                    .filter((genre) => movie.genre_ids.includes(genre.id))
-                    .slice(0, 1)
-                    .map(
-                      (genre) =>
-                        genre.name[0].toUpperCase() + genre.name.slice(1),
-                    )
-                    .join(", ")}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <MediaSection
+        description="Popular films worth adding to your list."
+        eyebrow="WELL LOVED"
+        title="Popular films"
+      >
+        {renderSection("popular", "movie", true)}
+      </MediaSection>
 
+      <MediaSection
+        className="media-section--upcoming"
+        description="A first look at what is on the way."
+        eyebrow="COMING SOON"
+        id="upcoming"
+        title="Upcoming releases"
+      >
+        {renderSection("upcoming", "movie", true)}
+      </MediaSection>
 
-        <div className="main-text">TV Shows</div>
-        <div className="new-movie-grid">
-          {tv.map((movie) => (
-            <div
-              className="new-movie-info"
-              key={movie.id}
-              onClick={() => navigate(`/movie/${movie.id}`)}
-            >
-              <div className="popular-movie-thumbnail">
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.name}
-                />
-                <div className="movie-rating">
-                  <FaStar className="star-icon" />{" "}
-                  <span>{movie.vote_average.toFixed(1)}</span>
-                </div>
-              </div>
-              <div className="popular-movie-name">{movie.name}</div>
-              <div className="popular-movie-less-info">
-                <div className="popular-movie-year">{movie.first_air_date}</div>
-                <div className="popular-movie-genre">
-                  {genreList
-                    .filter((genre) => movie.genre_ids.includes(genre.id))
-                    .slice(0, 1)
-                    .map(
-                      (genre) =>
-                        genre.name[0].toUpperCase() + genre.name.slice(1),
-                    )
-                    .join(", ")}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <MediaSection
+        description="Long-form stories, ready for your next night in."
+        eyebrow="THE SMALL SCREEN"
+        title="Popular series"
+      >
+        {renderSection("tv", "tv")}
+      </MediaSection>
 
-        {showDisplay && (
-          <>
-            <div className="main-text" onLoad={() => setShowDisplay(false)}>
-              Movies
-            </div>
-            <div className="popular-movie-grid">
-              {movie.map((movie) => (
-                <div
-                  className="popular-movie-info"
-                  key={movie.id}
-                  onClick={() => navigate(`/movie/${movie.id}`)}
-                >
-                  <div className="popular-movie-thumbnail">
-                    <img
-                      src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                      alt={movie.name}
-                    />
-                    <div className="movie-rating">
-                      <FaStar className="star-icon" />{" "}
-                      <span>{movie.vote_average.toFixed(1)}</span>
-                    </div>
-                  </div>
-                  <div className="popular-movie-name">{movie.name}</div>
-                  <div className="popular-movie-less-info">
-                    <div className="popular-movie-year">
-                      {movie.first_air_date}
-                    </div>
-                    <div className="popular-movie-genre">
-                      {genreList
-                        .filter((genre) => movie.genre_ids.includes(genre.id))
-                        .slice(0, 1)
-                        .map(
-                          (genre) =>
-                            genre.name[0].toUpperCase() + genre.name.slice(1),
-                        )
-                        .join(", ")}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+      <div className="catalog-more">
+        <Button
+          aria-controls="discover-films"
+          aria-expanded={showMore}
+          onClick={() => setShowMore((value) => !value)}
+          variant="secondary"
+        >
+          {showMore ? "Show fewer films" : "Explore more films"}
+        </Button>
+      </div>
 
-        <div className="load-more-btn" onClick={handleClick}>
-          {showDisplay ? "Show Less" : "Load More Movies"}
-        </div>
-      </main>
-    </>
+      <div hidden={!showMore} id="discover-films">
+        <MediaSection
+          description="More films, selected from TMDB's most popular discoveries."
+          eyebrow="KEEP EXPLORING"
+          title="More to discover"
+        >
+          {renderSection("discover", "movie", true)}
+        </MediaSection>
+      </div>
+    </main>
   );
-};
-
-export default Homevidsection;
+}

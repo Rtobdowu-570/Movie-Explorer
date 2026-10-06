@@ -1,61 +1,86 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-import { useNavigate } from "react-router";
-import "../styles/home.css";
+import Button from "../components/Button";
+import StatusPanel from "../components/StatusPanel";
+import { LoadingGrid, MovieGrid } from "../components/MovieCard";
+import { searchMovies } from "../api/tmdb";
 
-const SearchResults = () => {
+export default function SearchResults() {
   const [searchParams] = useSearchParams();
+  const movieQuery = (searchParams.get("q") || "").trim();
   const [results, setResults] = useState([]);
-  const movieQuery = searchParams.get("q");
-  const navigate = useNavigate();
+  const [totalResults, setTotalResults] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    const fetchMovies = async () => {
-      const options = {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
-        },
-      };
+    const controller = new AbortController();
+    setError("");
 
+    if (!movieQuery) {
+      setResults([]);
+      setTotalResults(0);
+      setLoading(false);
+      return () => controller.abort();
+    }
+
+    setResults([]);
+    setTotalResults(0);
+    setLoading(true);
+
+    async function loadResults() {
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/search/movie?query=${movieQuery}`,
-          options,
-        );
-        const data = await response.json();
-        setResults(data.results || []);
-      } catch (err) {
-        console.error(err);
+        const data = await searchMovies(movieQuery, { signal: controller.signal });
+        if (!controller.signal.aborted) {
+          setResults(data.results || []);
+          setTotalResults(Number(data.total_results) || 0);
+        }
+      } catch (loadError) {
+        if (!controller.signal.aborted) setError(loadError.message);
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
       }
-    };
+    }
 
-    if (movieQuery) fetchMovies();
-  }, [movieQuery]);
+    loadResults();
+    return () => controller.abort();
+  }, [movieQuery, attempt]);
 
-  console.log("Rendering results:", results);
   return (
-    <div className="search-page">
-      <h2>Results for: {movieQuery}</h2>
-      <div className="popular-movie-grid">
-        {results.map((movie) => (
-          <div className="popular-movie-info" key={movie.id} onClick={() => navigate(`/movie/${movie.id}`)} style={{ cursor: "pointer" }}>
-            <div className="popular-movie-thumbnail">
-              <img
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                alt={movie.title}
-              />
-            </div>
-            <div className="popular-movie-name">{movie.title}</div>
-            <div className="popular-movie-less-info">
-              <div className="popular-movie-year">{movie.release_date}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+    <main className="search-page page-width">
+      <header className="page-intro">
+        <p className="eyebrow">SEARCH THE COLLECTION</p>
+        <h1>
+          {movieQuery ? <>Results for <span>“{movieQuery}”</span></> : "Find your next favourite."}
+        </h1>
+        <p>Search films by title and follow the story to its details.</p>
+      </header>
 
-export default SearchResults;
+      {!movieQuery ? (
+        <StatusPanel
+          message="Use the search field in the top bar to look up a film by name."
+          title="Ready when you are."
+        />
+      ) : loading ? (
+        <LoadingGrid count={8} />
+      ) : error ? (
+        <StatusPanel kind="error" message={error} title="Search couldn't be completed.">
+          <Button onClick={() => setAttempt((value) => value + 1)} variant="secondary">Try again</Button>
+        </StatusPanel>
+      ) : results.length ? (
+        <>
+          <p className="search-results__count">
+            Showing {results.length} of {totalResults.toLocaleString("en-GB")} {totalResults === 1 ? "result" : "results"}
+          </p>
+          <MovieGrid mediaType="movie" movies={results} />
+        </>
+      ) : (
+        <StatusPanel
+          message={`Try another spelling or search a different title from the top bar.`}
+          title={`No films found for “${movieQuery}”.`}
+        />
+      )}
+    </main>
+  );
+}

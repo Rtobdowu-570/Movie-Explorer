@@ -1,349 +1,425 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router";
-import { ToastContainer, toast } from "react-toastify";
-import Spinner from "react-spinner"; 
-import {
-  FaSearch,
-  FaBell,
-  FaListUl,
-  FaHeart,
-  FaBookmark,
-  FaPlay,
-  FaFacebookSquare,
-  FaTwitter,
-  FaInstagram,
-  FaLink,
-  FaStar,
-} from "react-icons/fa";
-import "../styles/movie.css";
-import "react-toastify/dist/ReactToastify.css";
-import "react-spinner/react-spinner.css";
+import { useEffect, useState } from "react";
+import { FaCheck, FaLink, FaPlay, FaStar } from "react-icons/fa";
+import { useParams } from "react-router";
+import Button from "../components/Button";
+import MediaSection from "../components/MediaSection";
+import StatusPanel from "../components/StatusPanel";
+import { getMovieDetails, getTvDetails } from "../api/tmdb";
 
-const Movie = () => {
+const IMAGE_BASE = "https://image.tmdb.org/t/p";
+
+function formatDate(value) {
+  if (!value) return "—";
+  const dateValue = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00` : value;
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+function formatRuntime(minutes) {
+  const value = Number(minutes);
+  if (!value || value < 1) return "—";
+  const hours = Math.floor(value / 60);
+  const remainder = value % 60;
+  return hours ? `${hours}h ${remainder}m` : `${remainder} min`;
+}
+
+function formatCurrency(value) {
+  const amount = Number(value);
+  if (!amount) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function getCertification(title, isTv) {
+  if (isTv) {
+    return title.content_ratings?.results?.find((entry) => entry.iso_3166_1 === "US")?.rating || "NR";
+  }
+  const releases = title.release_dates?.results?.find((entry) => entry.iso_3166_1 === "US")?.release_dates || [];
+  return releases.find((entry) => entry.certification)?.certification || "NR";
+}
+
+function getKeywords(title) {
+  const values = title.keywords?.keywords || title.keywords?.results || [];
+  return values.slice(0, 12);
+}
+
+function getTrailer(videos) {
+  const playableVideos = videos.filter((video) => video.site === "YouTube" && video.key);
+  return playableVideos.find((video) => video.type === "Trailer")
+    || playableVideos.find((video) => video.type === "Teaser")
+    || null;
+}
+
+function getImageUrl(path, size = "w342") {
+  if (!path) return "";
+  return path.startsWith("/http")
+    ? path.slice(1)
+    : `${IMAGE_BASE}/${size}${path}`;
+}
+
+function PersonCard({ person, character }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageUrl = getImageUrl(person.profile_path, "w185");
+  const initials = person.name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("");
+
+  return (
+    <article className="person-card">
+      <div className="person-card__portrait">
+        {imageUrl && !imageFailed ? (
+          <img
+            alt={`${person.name}`}
+            decoding="async"
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+            src={imageUrl}
+          />
+        ) : (
+          <span aria-label={`No portrait for ${person.name}`} className="person-card__initials">
+            {initials}
+          </span>
+        )}
+      </div>
+      <h3>{person.name}</h3>
+      {character && <p>{character}</p>}
+    </article>
+  );
+}
+
+function Fact({ label, value }) {
+  return (
+    <div className="detail-fact">
+      <dt>{label}</dt>
+      <dd>{value || "—"}</dd>
+    </div>
+  );
+}
+
+export default function Movie({ mediaType = "movie" }) {
   const { id } = useParams();
-  const [movie, setMovie] = useState(null);
+  const isTv = mediaType === "tv";
+  const [title, setTitle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  const [copyState, setCopyState] = useState("idle");
 
   useEffect(() => {
-    const fetchMovieData = async () => {
-      setLoading(true);
-      const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-      const url = `https://api.themoviedb.org/3/movie/${id}?append_to_response=credits,reviews,videos,keywords,release_dates,similar&language=en-US`;
-      
-      const options = {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
-          Authorization: `Bearer ${TMDB_API_KEY}`
-        }
-      };
+    const controller = new AbortController();
+    setTitle(null);
+    setLoading(true);
+    setError("");
+    setCopyState("idle");
 
+    async function loadTitle() {
       try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-          throw new Error("Failed to fetch movie details");
-        }
-        const data = await response.json();
-        setMovie(data);
-      } catch (error) {
-        console.error("Error loading movie:", error);
-        toast.error("Failed to load movie details. Please try again.");
+        const fetchDetails = isTv ? getTvDetails : getMovieDetails;
+        const data = await fetchDetails(id, { signal: controller.signal });
+        if (!controller.signal.aborted) setTitle(data);
+      } catch (loadError) {
+        if (!controller.signal.aborted) setError(loadError.message);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
-    };
-
-    if (id) {
-       fetchMovieData();
     }
-  }, [id]);
+
+    if (id) loadTitle();
+    else {
+      setError("This title does not have a valid address.");
+      setLoading(false);
+    }
+
+    return () => controller.abort();
+  }, [id, isTv, attempt]);
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+  };
 
   if (loading) {
-     return (
-        <div className="page-container" style={{justifyContent:'center', alignItems:'center', height: '100vh'}}>
-           <Spinner />
-        </div>
-     );
-  }
-
-  if (!movie) {
     return (
-       <div className="page-container" style={{justifyContent:'center', alignItems:'center', height: '100vh'}}>
-          <h2>Movie not found.</h2>
-       </div>
+      <main className="detail-page page-width">
+        <div aria-label="Loading title details" className="detail-loading" role="status">
+          <span className="sr-only">Loading title details…</span>
+          <div className="detail-loading__poster skeleton-block" />
+          <div className="detail-loading__copy">
+            <span className="skeleton-block skeleton-block--meta" />
+            <span className="skeleton-block skeleton-block--title" />
+            <span className="skeleton-block skeleton-block--line" />
+            <span className="skeleton-block skeleton-block--line" />
+            <span className="skeleton-block skeleton-block--line skeleton-block--short" />
+          </div>
+        </div>
+      </main>
     );
   }
 
-  // Helpers
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-  };
+  if (error || !title) {
+    return (
+      <main className="detail-page detail-page--message page-width">
+        <StatusPanel kind="error" message={error || "Try again or return to the catalogue."} title="We couldn't load this title.">
+          <Button onClick={() => setAttempt((value) => value + 1)} variant="secondary">Try again</Button>
+          <Button to="/movie" variant="primary">Back to discovery</Button>
+        </StatusPanel>
+      </main>
+    );
+  }
 
-  const formatRuntime = (minutes) => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${h}h ${m}m`;
-  };
-
-  const getDirector = () => movie.credits?.crew?.find(person => person.job === "Director");
-  const getWriters = () => movie.credits?.crew?.filter(person => ["Screenplay", "Writer", "Story"].includes(person.job)).slice(0, 2);
-  
-  const certification = movie.release_dates?.results?.find(r => r.iso_3166_1 === "US")?.release_dates[0]?.certification || "NR";
-  
-  const trailer = movie.videos?.results?.find(vid => vid.type === "Trailer" && vid.site === "YouTube");
-  const videos = movie.videos?.results?.slice(0, 5) || [];
+  const name = title.title || title.name || "Untitled";
+  const releaseDate = title.release_date || title.first_air_date;
+  const year = releaseDate?.slice(0, 4);
+  const genres = title.genres || [];
+  const vote = Number(title.vote_average);
+  const videos = title.videos?.results || [];
+  const trailer = getTrailer(videos);
+  const cast = title.credits?.cast || [];
+  const crew = title.credits?.crew || [];
+  const director = crew.find((member) => member.job === "Director");
+  const creators = title.created_by || [];
+  const writers = crew.filter((member) => ["Writer", "Screenplay", "Story", "Teleplay"].includes(member.job));
+  const review = title.reviews?.results?.[0];
+  const keywords = getKeywords(title);
+  const runtime = isTv ? title.episode_run_time?.[0] : title.runtime;
+  const facts = isTv
+    ? [
+        { label: "Status", value: title.status },
+        { label: "First aired", value: formatDate(title.first_air_date) },
+        { label: "Seasons", value: title.number_of_seasons },
+        { label: "Episodes", value: title.number_of_episodes },
+        { label: "Original language", value: title.original_language?.toUpperCase() },
+      ]
+    : [
+        { label: "Status", value: title.status },
+        { label: "Release date", value: formatDate(title.release_date) },
+        { label: "Original language", value: title.original_language?.toUpperCase() },
+        { label: "Budget", value: formatCurrency(title.budget) },
+        { label: "Revenue", value: formatCurrency(title.revenue) },
+      ];
 
   return (
-    <div className="page-container">
-      <ToastContainer theme="dark" position="bottom-right" />
-      
-      {/* Navigation */}
-      <nav className="nav-bar">
-        <div className="nav-left">
-          <Link to="/" style={{textDecoration:'none'}}>
-            <div className="nav-logo">MovieHook</div>
-          </Link>
-          <div className="nav-links">
-            <span className="nav-link">Movies</span>
-            <span className="nav-link">TV Shows</span>
-            <span className="nav-link">People</span>
-            <span className="nav-link">More</span>
-          </div>
-        </div>
-        <div className="nav-actions">
-          <FaSearch className="nav-icon" size={20} />
-          <FaBell className="nav-icon" size={20} />
+    <main className="detail-page">
+      <section aria-labelledby="detail-title" className="detail-hero">
+        {title.backdrop_path && (
           <img
-            src="https://storage.googleapis.com/banani-avatars/avatar%2Ffemale%2F25-35%2FSouth%20Asian%2F2"
-            className="user-avatar"
-            alt="Profile"
+            alt=""
+            className="detail-hero__backdrop"
+            decoding="async"
+            fetchPriority="high"
+            src={`${IMAGE_BASE}/w1280${title.backdrop_path}`}
           />
-        </div>
-      </nav>
+        )}
+        <div aria-hidden="true" className="detail-hero__scrim" />
 
-      {/* Hero Section */}
-      <section className="hero-wrapper">
-        <div className="hero-backdrop">
-          {movie.backdrop_path && (
-            <img
-              src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-              alt="Backdrop"
-              className="backdrop-image"
-            />
-          )}
-          <div className="hero-overlay" />
-        </div>
-
-        <div className="hero-content">
-          <div className="poster-box">
-             {movie.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title}
-                />
-             ) : (
-                <div style={{height: '450px', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>No Image</div>
-             )}
+        <div className="detail-hero__inner page-width">
+          <div className="detail-poster">
+            {title.poster_path ? (
+              <img
+                alt={`${name} poster`}
+                decoding="async"
+                fetchPriority="high"
+                height="750"
+                src={`${IMAGE_BASE}/w500${title.poster_path}`}
+                width="500"
+              />
+            ) : (
+              <div className="detail-poster__empty">Poster unavailable</div>
+            )}
           </div>
 
-          <div className="movie-info-col">
-            <h1 className="title-year">
-              {movie.title} <span style={{ fontWeight: 400 }}>({movie.release_date?.split('-')[0]})</span>
-            </h1>
-
-            <div className="movie-facts">
-              <span className="certification">{certification}</span>
-              <span>{movie.release_date}</span>
-              <span className="bullet">•</span>
-              <span>{formatRuntime(movie.runtime)}</span>
-              <span className="bullet">•</span>
-              <span>{movie.genres?.map(g => g.name).join(', ')}</span>
+          <div className="detail-hero__copy">
+            <p className="eyebrow">{isTv ? "SERIES PROFILE" : "FILM PROFILE"}</p>
+            <h1 id="detail-title">{name}{year && <span className="detail-year"> ({year})</span>}</h1>
+            <div className="detail-meta" aria-label="Title information">
+              <span>{getCertification(title, isTv)}</span>
+              {releaseDate && <span>{formatDate(releaseDate)}</span>}
+              {runtime && <span>{isTv ? `${formatRuntime(runtime)} per episode` : formatRuntime(runtime)}</span>}
+              {genres.length > 0 && <span>{genres.map((genre) => genre.name).join(" · ")}</span>}
             </div>
 
-            <div className="actions-row">
-              <div className="score-container">
-                <div className="score-text">
-                  {Math.round(movie.vote_average * 10)}<span>%</span>
+            <div className="detail-actions">
+              {vote > 0 && (
+                <div
+                  aria-label={`TMDB rating ${vote.toFixed(1)} out of 10`}
+                  className="score-ring"
+                  style={{ "--score": `${Math.round(vote * 10)}%` }}
+                >
+                  <span>{vote.toFixed(1)}</span>
                 </div>
-              </div>
-              <span className="user-score-label">User Score</span>
+              )}
+              {trailer && (
+                <a
+                  className="button button--primary"
+                  href={`https://www.youtube.com/watch?v=${encodeURIComponent(trailer.key)}`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <FaPlay aria-hidden="true" /> Watch trailer
+                </a>
+              )}
+              <Button className="button--share" onClick={handleCopyLink} variant="secondary">
+                {copyState === "copied" ? <FaCheck aria-hidden="true" /> : <FaLink aria-hidden="true" />}
+                {copyState === "copied" ? "Copied" : "Copy link"}
+              </Button>
+            </div>
+            {copyState === "failed" && (
+              <p className="copy-feedback" role="status">Your browser couldn't copy the link. Copy it from the address bar instead.</p>
+            )}
 
-              <button className="icon-btn-circle" title="Add to list">
-                <FaListUl size={14} />
-              </button>
-              <button className="icon-btn-circle" title="Mark as favorite">
-                <FaHeart size={14} />
-              </button>
-              <button className="icon-btn-circle" title="Add to watchlist">
-                <FaBookmark size={14} />
-              </button>
-              
-              <button className="play-trailer-btn" onClick={() => trailer && window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank")}>
-                <FaPlay size={14} /> Play Trailer
-              </button>
+            {title.tagline && <p className="detail-tagline">“{title.tagline}”</p>}
+            <div className="detail-overview">
+              <h2>Overview</h2>
+              <p>{title.overview || "No overview has been added for this title yet."}</p>
             </div>
 
-            <div className="tagline">{movie.tagline}</div>
-
-            <h3 className="overview-heading">Overview</h3>
-            <p className="overview-text">
-              {movie.overview}
-            </p>
-
-            <div className="crew-grid">
-              {getDirector() && (
-                  <div className="crew-member">
-                    <span className="name">{getDirector().name}</span>
-                    <span className="role">Director</span>
-                  </div>
+            <div className="detail-credits">
+              {(isTv ? creators.length > 0 : director) && (
+                <div>
+                  <span>{isTv ? "Created by" : "Directed by"}</span>
+                  <p>{isTv ? creators.map((person) => person.name).join(", ") : director.name}</p>
+                </div>
               )}
-              {getWriters()?.map(writer => (
-                  <div className="crew-member" key={writer.id}>
-                    <span className="name">{writer.name}</span>
-                    <span className="role">{writer.job}</span>
-                  </div>
-              ))}
+              {writers.length > 0 && (
+                <div>
+                  <span>Written by</span>
+                  <p>{writers.slice(0, 4).map((person) => person.name).join(", ")}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Content Area */}
-      <main className="content-wrapper">
-        <div className="left-column">
-          <section className="cast-section">
-            <div className="panel-header">Top Billed Cast</div>
-            <div className="cast-scroller">
-              {movie.credits?.cast?.slice(0, 10).map(person => (
-                <CastCard
-                  key={person.id}
-                  name={person.name}
-                  char={person.character}
-                  img={person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : 'https://via.placeholder.com/200x300?text=No+Image'}
-                />
-              ))}
-            </div>
-          </section>
+      <div className="detail-content page-width">
+        <div className="detail-content__main">
+          <MediaSection
+            description="The people who brought this story to life."
+            eyebrow="CAST"
+            title="Top billed"
+          >
+            {cast.length ? (
+              <div aria-label="Cast members" className="person-rail">
+                {cast.slice(0, 12).map((person) => (
+                  <PersonCard character={person.character} key={person.id} person={person} />
+                ))}
+              </div>
+            ) : (
+              <StatusPanel title="Cast details are not available yet." />
+            )}
+          </MediaSection>
 
-          <section className="social-section">
-             <div className="panel-header" style={{ borderBottom: '1px solid #333', paddingBottom: '10px' }}>
-                Social <span style={{fontSize: '14px', marginLeft: '20px', borderBottom: '4px solid #fff', paddingBottom: '13px'}}>Reviews ({movie.reviews?.total_results || 0})</span> 
-             </div>
-             
-             {movie.reviews?.results?.length > 0 ? (
-                 <div className="review-card">
-                    <div className="review-header">
-                      {movie.reviews.results[0].author_details?.avatar_path ? (
-                          <img 
-                            src={movie.reviews.results[0].author_details.avatar_path.startsWith('/http') 
-                                ? movie.reviews.results[0].author_details.avatar_path.substring(1) 
-                                : `https://image.tmdb.org/t/p/w185${movie.reviews.results[0].author_details.avatar_path}`} 
-                            className="review-avatar" 
-                            alt="Reviewer" 
-                          />
-                      ) : (
-                          <div className="review-avatar" style={{display:'flex', alignItems:'center', justifyContent:'center'}}>?</div>
-                      )}
-                      
-                      <div className="review-meta">
-                        <h4>{movie.reviews.results[0].author}</h4>
-                        <span>{new Date(movie.reviews.results[0].created_at).toLocaleDateString()}</span>
-                      </div>
-                      {movie.reviews.results[0].author_details?.rating && (
-                         <div className="review-rating-badge"><FaStar size={10} style={{marginRight: '4px'}}/> {movie.reviews.results[0].author_details.rating}</div>
-                      )}
-                    </div>
-                    <p style={{fontSize: '14px', lineHeight: '1.5', margin: 0}}>
-                       {movie.reviews.results[0].content.length > 300 
-                         ? `${movie.reviews.results[0].content.substring(0, 300)}...` 
-                         : movie.reviews.results[0].content}
-                    </p>
-                 </div>
-             ) : (
-                 <p style={{color: '#999'}}>No reviews found.</p>
-             )}
-          </section>
-
-          <section className="media-section">
-             <div className="panel-header">
-                Media 
-                <span style={{fontSize: '14px', marginLeft: '20px', borderBottom: '4px solid #fff', paddingBottom: '13px'}}>Videos ({videos.length})</span> 
-             </div>
-             <div className="media-scroller">
-               {videos.map(vid => (
-                  <div className="video-card" key={vid.id} onClick={() => window.open(`https://www.youtube.com/watch?v=${vid.key}`, "_blank")}>
-                      <img 
-                        src={`https://img.youtube.com/vi/${vid.key}/hqdefault.jpg`} 
-                        className="video-thumb"
-                        alt={vid.name} 
+          <MediaSection
+            description="Trailers, teasers and clips."
+            eyebrow="WATCH"
+            title="Videos"
+          >
+            {videos.length ? (
+              <div className="video-grid">
+                {videos.slice(0, 5).map((video) => (
+                  <a
+                    className="video-card"
+                    href={video.site === "YouTube" && video.key ? `https://www.youtube.com/watch?v=${encodeURIComponent(video.key)}` : `https://www.themoviedb.org/${isTv ? "tv" : "movie"}/${id}/videos`}
+                    key={video.id}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    {video.site === "YouTube" && video.key ? (
+                      <img
+                        alt=""
+                        className="video-card__thumbnail"
+                        decoding="async"
+                        loading="lazy"
+                        src={`https://img.youtube.com/vi/${video.key}/hqdefault.jpg`}
                       />
-                      <div className="play-overlay">
-                          <FaPlay color="white" />
-                      </div>
-                      <div className="video-title">{vid.name}</div>
-                   </div>
-               ))}
-             </div>
-          </section>
+                    ) : (
+                      <div className="video-card__thumbnail video-card__thumbnail--empty" />
+                    )}
+                    <span aria-hidden="true" className="video-card__play"><FaPlay /></span>
+                    <span className="video-card__title">{video.name}</span>
+                    <span className="video-card__type">{video.type}</span>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <StatusPanel title="No videos have been added yet." message="Check back for trailers and clips." />
+            )}
+          </MediaSection>
+
+          <MediaSection
+            description="A note from the people who watched it."
+            eyebrow="AUDIENCE NOTES"
+            title="Reviews"
+          >
+            {review ? (
+              <article className="review-card">
+                <div className="review-card__header">
+                  <div className="review-card__identity">
+                    <div aria-hidden="true" className="review-avatar">
+                      {review.author?.trim()?.[0]?.toUpperCase() || "M"}
+                    </div>
+                    <div>
+                      <h3>{review.author || "TMDB member"}</h3>
+                      <p>{formatDate(review.created_at)}</p>
+                    </div>
+                  </div>
+                  {review.author_details?.rating != null && (
+                    <span className="review-rating"><FaStar aria-hidden="true" /> {review.author_details.rating}/10</span>
+                  )}
+                </div>
+                <p className="review-card__excerpt">
+                  {review.content?.length > 380 ? `${review.content.slice(0, 380).trim()}…` : review.content}
+                </p>
+                {review.content?.length > 380 && (
+                  <details className="review-more">
+                    <summary>Read full review</summary>
+                    <p>{review.content}</p>
+                  </details>
+                )}
+              </article>
+            ) : (
+              <StatusPanel title="No reviews yet." message="Be the first to share a reaction on TMDB." />
+            )}
+          </MediaSection>
         </div>
 
-        <aside className="sidebar">
-          <div className="social-links">
-            <FaFacebookSquare size={24} /> 
-            <FaTwitter size={24} />
-            <FaInstagram size={24} /> 
-            <div style={{width: '1px', height: '24px', background: '#333'}}></div>
-            <FaLink size={24} />
-          </div>
-          
-          <FactItem label="Status" value={movie.status} />
-          <FactItem label="Original Language" value={movie.original_language?.toUpperCase()} />
-          <FactItem label="Budget" value={movie.budget > 0 ? formatCurrency(movie.budget) : '-'} />
-          <FactItem label="Revenue" value={movie.revenue > 0 ? formatCurrency(movie.revenue) : '-'} />
-          
-          <div className="fact-item">
-            <div className="fact-label">Keywords</div>
-            <div className="keyword-list">
-              {movie.keywords?.keywords?.map(kw => (
-                 <span className="keyword-tag" key={kw.id}>{kw.name}</span>
-              ))}
-            </div>
-          </div>
+        <aside className="detail-sidebar">
+          <section aria-labelledby="facts-heading" className="detail-facts-panel">
+            <p className="eyebrow">AT A GLANCE</p>
+            <h2 id="facts-heading">Details</h2>
+            <dl>
+              {facts.map((fact) => <Fact key={fact.label} label={fact.label} value={fact.value} />)}
+              {isTv && runtime && <Fact label="Episode length" value={`${formatRuntime(runtime)}`} />}
+            </dl>
+          </section>
+
+          {keywords.length > 0 && (
+            <section aria-labelledby="keywords-heading" className="detail-keywords">
+              <p className="eyebrow">THEMES</p>
+              <h2 id="keywords-heading">Keywords</h2>
+              <div className="keyword-list">
+                {keywords.map((keyword) => (
+                  <span className="keyword-chip" key={keyword.id}>{keyword.name}</span>
+                ))}
+              </div>
+            </section>
+          )}
         </aside>
-      </main>
-      
-      <footer className="footer">
-        <div className="footer-logo">MovieHook</div>
-        <div className="copyright">© 2024 MovieHook. All rights reserved. Data provided by TMDB.</div>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
-};
-
-// Reusable Components
-const CastCard = ({ name, char, img }) => (
-  <div className="cast-card">
-    <img
-      src={img}
-      alt={name}
-      className="cast-img"
-    />
-    <div className="cast-info">
-      <div className="cast-name">{name}</div>
-      <div className="cast-char">{char}</div>
-    </div>
-  </div>
-);
-
-const FactItem = ({ label, value }) => (
-  <div className="fact-item">
-    <div className="fact-label">
-      {label}
-    </div>
-    <div className="fact-value">
-      {value}
-    </div>
-  </div>
-);
-
-export default Movie;
+}
